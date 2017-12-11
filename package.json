@@ -1,0 +1,67 @@
+{
+  "name": "zaitun",
+  "version": "1.6.5",
+  "description": "A light weight reactive framework for front-end project development.",
+  "main": "index.js",
+  "module": "es/index.js",
+  "typings": "index.d.ts",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "dependencies": {
+    "rxjs": "^5.5.5",
+    "snabbdom": "^0.7.0"
+  },
+  "devDependencies": {
+    "@types/es6-promise": "0.0.33",
+    "benchmark": "^2.1.4",
+    "browserify": "^14.4.0",
+    "fake-raf": "1.0.1",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^2.6.0",
+    "gulp-uglify": "^3.0.0",
+    "knuth-shuffle": "^1.0.1",
+    "testem": "^1.18.1",
+    "typescript": "^2.4.2",
+    "xyz": "2.1.0"
+  },
+  "scripts": {
+    "pretest": "npm run compile",
+    "test": "testem",
+    "compile": "npm run compile-es && npm run compile-commonjs",
+    "compile-es": "tsc --outDir es --module es6 --moduleResolution node",
+    "compile-umd": "tsc --outDir umd --module umd --moduleResolution node",
+    "compile-commonjs": "tsc --outDir ./",
+    "prepublish": "npm run compile",
+    "compress":"gulp compress",
+    "compile-example": "tsc ./examples/*.ts --outDir ./ --module es6 --moduleResolution node",
+    "release-major": "xyz --repo git@github.com/JUkhan/zaitun.git --increment major",
+    "release-minor": "xyz --repo git@github.com/JUkhan/zaitun.git --increment minor",
+    "release-patch": "xyz --repo git@github.com/JUkhan/zaitun.git --increment patch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JUkhan/zaitun.git"
+  },
+  "keywords": [
+    "virtual",
+    "dom",
+    "light",
+    "reactive",
+    "rxjs",
+    "ngrx",
+    "redux",
+    "react",
+    "angular",
+    "performance"
+  ],
+  "author": "Jasim Uddin Khan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JUkhan/zaitun/issues"
+  },
+  "homepage": "https://github.com/JUkhan/zaitun#readme"
+}
