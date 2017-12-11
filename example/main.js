@@ -1,7 +1,7 @@
 var zaitun=require('../index');
 var h=zaitun.h;
 
-import 'rxjs/add/operator/map';
+require('rxjs/add/operator/map');
 
 class Counter {
   

@@ -6,7 +6,7 @@
   "module": "es/index.js",
   "typings": "index.d.ts",
   "directories": {
-    "example": "examples",
+    "example": "example",
     "test": "test"
   },
   "dependencies": {
@@ -37,7 +37,7 @@
     "compile-commonjs": "tsc --outDir ./",
     "prepublish": "npm run compile",
     "compress":"gulp compress",
-    "compile-example": "tsc ./examples/*.ts --outDir ./ --module es6 --moduleResolution node",
+    "compile-example": "browserify -d example/main.js -o example/browserified.js",
     "release-major": "xyz --repo git@github.com/JUkhan/zaitun.git --increment major",
     "release-minor": "xyz --repo git@github.com/JUkhan/zaitun.git --increment minor",
     "release-patch": "xyz --repo git@github.com/JUkhan/zaitun.git --increment patch"
