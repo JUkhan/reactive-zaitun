@@ -20,10 +20,10 @@ export interface Action {
     [key: string]: any;
 }
 export interface Component {
-    init?: (dispatch?: (action: Action) => void, params?: any, router?: Router) => any;
+    init?: (dispatch: (action: Action) => void, params: any, router?: Router) => any;
     view: (obj: { model: any, dispatch: (action: Action) => void }) => any;
     update?: (model: any, action: Action) => any;
-    afterViewRender?: (state?: any, dispatch?: (action: Action) => void) => void;
+    afterViewRender?: (dispatch: (action: Action) => void, router:Router, state: any,) => void;
     onDestroy?:()=>void;
     router?:Router
 }
@@ -65,7 +65,10 @@ export function ComponentManager(boptions: BootstrapOptions) {
                 return {};
             },
             view: function (obj) {
-                return h('div.com-load', 'loading...');
+                return h('div.com-loading', 'loading...');
+            },
+            update:function(){
+                return {};
             }
         };
     }
@@ -78,7 +81,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
             mcom.router=router;
         }
         validateCom(mcom);
-        rootDispatch=Router.bindEffect(dispatch);
+        rootDispatch=router.bindEffect(dispatch);
         that.router.dispatch=rootDispatch;
         that._isTestEnable=false;
     }
@@ -212,7 +215,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
             model.child = cd[0] ? cd[1].state : that.child.init(that.router.dispatch, _params, that.router);
             updateUI();
             if (typeof that.child.afterViewRender === 'function') {
-                that.child.afterViewRender(that.router.dispatch, model);
+                that.child.afterViewRender(that.router.dispatch, that.router, model);
             }
             if (that.devTool) {
                 that.devTool.reset();
@@ -224,7 +227,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
         model = mcom.init(rootDispatch, that.router);        
         updateUI();
         if (typeof mcom.afterViewRender === 'function') {
-            mcom.afterViewRender(rootDispatch, model);
+            mcom.afterViewRender(rootDispatch,that.router, model);
         }
     }
     this.canActivate = function (route:RouteOptions, callback:Function) {

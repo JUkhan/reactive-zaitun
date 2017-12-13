@@ -1,4 +1,4 @@
-import {Router} from './router';
+
 import {Subscription} from 'rxjs/Subscription';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
@@ -14,15 +14,17 @@ export class Effect extends Subject<Action>{
     }
 }
 export class EffectSubscription extends Subscription{
-    constructor(){
-        super();        
+    private effect$:Effect;
+    constructor(effect:Effect){
+        super();  
+        this.effect$=effect;      
     }    
     addEffect(streamCallback:(effect$:Effect)=>Observable<Action>){
-        const effectStream=streamCallback(Router.effect$);
+        const effectStream=streamCallback(this.effect$);
         this.add(effectStream.subscribe(ac=>{
             if(typeof ac.dispatch==='function'){
                 ac.dispatch(ac);
-                Router.effect$.dispatch(ac);
+                this.effect$.dispatch(ac);
             }
         }));
         return this;

@@ -1,7 +1,7 @@
 import { BootstrapOptions } from './bootstrap';
 import { IComponentManager, Action } from './componentManager';
 import { DevTool } from "./devTool/devTool";
-import { Effect } from './effect';
+import { Effect, EffectSubscription } from './effect';
 
 
 export interface RouteOptions {
@@ -29,9 +29,13 @@ export class Router {
 
     constructor(private options: BootstrapOptions, public CM: IComponentManager) {
         this.originalUrl = window.location.origin;
-        Router.effect$ = new Effect();
-        Router.effect$.subscribe(console.log);
+        this._subject = new Effect();
+        this._subject.subscribe(console.log);
+        this.effect$=new EffectSubscription(this._subject);
         this.init();
+    }
+    effectInstance(){
+        return new EffectSubscription(this._subject);
     }
     test(): Promise<Router> {
         return new Promise<Router>(accept => {
@@ -189,7 +193,7 @@ export class Router {
 
     }
 
-    private renderHelper(route: RouteOptions, routeParams: any, url: any) {
+    private renderHelper(route: RouteOptions, routeParams: any, url: any) {        
         route._ca_checked = false;
         route.routeParams = routeParams;
         route.navPath = url;
@@ -198,20 +202,24 @@ export class Router {
             path: route.path,
             navPath: url
         };
+        this.unsubscribeAllEffect();
         Router.activeRoute = this.activeRoute;
         if (typeof route.data === 'function') {
             const res = route.data(route.routeParams) as Promise<any>;
             typeof res.then === 'function' && res.then(res => {
-                Router.activeRoute.data = res;
+                Router.activeRoute.data = res;                
                 this.CM.runChild(route, routeParams, url);
             });
         } else {
-            Router.activeRoute.data = route.data || {};
+            Router.activeRoute.data = route.data || {};            
             this.CM.runChild(route, routeParams, url);
         }
 
     }
-
+    private unsubscribeAllEffect(){
+        this.effect$.unsubscribe();
+        this.effect$=new EffectSubscription(this._subject);
+    }
     private init() {
 
         if (!Array.isArray(this.options.routes)) {
@@ -248,7 +256,7 @@ export class Router {
     }
     public dispatch: (action: Action) => void;
     public viewChild(obj: { model: any, dispatch: (action: Action) => void }): any {
-        obj.dispatch = Router.bindEffect(obj.dispatch);
+        obj.dispatch = this.bindEffect(obj.dispatch);
         this.dispatch = obj.dispatch;
         return this.CM.child.view(obj);
     }
@@ -256,16 +264,17 @@ export class Router {
     public updateChild(model: any, action: Action) {
         return this.CM.child.update(model, action);
     }
-    public static bindEffect(dispatch: Function): (action: Action) => void {
+    public bindEffect(dispatch: Function): (action: Action) => void {
         let _dispatch = dispatch;
         return (action: Action) => {
             action.dispatch = _dispatch;
             _dispatch(action);
-            Router.effect$.dispatch(action);
+            this._subject.dispatch(action);
         }
     }
     public static activeRoute: ActiveRoute = <ActiveRoute>{};
-    public static effect$: Effect;
+    public effect$: EffectSubscription;
+    private _subject: Effect;
 }
 
 export default Router;
