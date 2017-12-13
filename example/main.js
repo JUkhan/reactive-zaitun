@@ -49,4 +49,5 @@ class Counter {
 zaitun.bootstrap ({
   containerDom: '#app',
   mainComponent: Counter,
+  devTool:true
 });
