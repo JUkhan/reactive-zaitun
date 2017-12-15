@@ -21,8 +21,8 @@ export interface Action {
 }
 export interface Component {
     init?: (dispatch: (action: Action) => void, params: any, router?: Router) => any;
-    view: (obj: { model: any, dispatch: (action: Action) => void }) => any;
-    update?: (model: any, action: Action) => any;
+    view: (obj: { model: any, dispatch: (action: Action) => void , router?:Router}) => any;
+    update?: (model: any, action: Action, router?:Router) => any;
     afterViewRender?: (dispatch: (action: Action) => void, router:Router, state: any,) => void;
     onDestroy?:()=>void;
     router?:Router
@@ -118,13 +118,14 @@ export function ComponentManager(boptions: BootstrapOptions) {
     function updateUI() {
         const newVnode = mcom.view({
             model: model,
-            dispatch:rootDispatch
+            dispatch:rootDispatch,
+            router:that.router
         });
         vnode = patch(vnode, newVnode);
     }
 
     function dispatch(action: Action) {
-        model = mcom.update(model, action);
+        model = mcom.update(model, action, that.router);
         updateUI();
         if(that._isTestEnable){
             that._testCallback({model, action});

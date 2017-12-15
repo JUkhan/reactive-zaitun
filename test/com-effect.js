@@ -3,18 +3,16 @@ var h = zaitun.h;
 var assert = require ('assert');
 
 require("rxjs/add/operator/map");
-class Counter {
-  constructor () {
-    this.es = new zaitun.EffectSubscription ();    
-  }
+
+class Counter {  
   init () {
     return {count: 0};
   }
-  afterViewRender () {    
-    this.es.addEffect (effect$ =>
+  afterViewRender (dispatch, router) {  
+    
+    router.effect$.addEffect (effect$ =>
       effect$
-        .whenAction ('lazy')
-        //.delay (1000)
+        .whenAction ('lazy')        
         .map (action =>{
           action.type= 'inc';
           return action;
@@ -22,7 +20,7 @@ class Counter {
     );
   }
   onDestroy () {
-    this.es.dispose ();
+   
   }
   view({model, dispatch}) {
     return h ('div', 'count: ' + model.count);
@@ -76,10 +74,11 @@ describe ('counter component', function () {
         if(res.action.type==='lazy'){
           assert.deepEqual (res.model, {count:0, msg:'loaading...'});
         }
-        if(res.action.type==='inc'){
+        else if(res.action.type==='inc'){
           assert.deepEqual (res.model, {count:1, msg:''});
+          done ();
         }
-        done ();
+         
       });
     });
   });

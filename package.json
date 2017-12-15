@@ -1,7 +1,7 @@
 {
   "name": "zaitun",
   "version": "1.6.5",
-  "description": "A light weight reactive framework for front-end project development.",
+  "description": "A functional reactive framework for front-end application development.",
   "main": "index.js",
   "module": "es/index.js",
   "typings": "index.d.ts",

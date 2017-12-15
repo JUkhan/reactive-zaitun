@@ -9,5 +9,5 @@
   ],
   "before_tests": "browserify -d test/index.js -o browserified.js",
   "on_exit": "rm browserified.js",
-  "launch_in_dev": [ "firefox", "chromium" ]
+  "launch_in_dev": ["chromium" , "firefox" ]
 }

@@ -25,12 +25,12 @@ export interface ActiveRoute {
 export class Router {
     private originalUrl = window.location.origin;
     private _fap = '';
-    public activeRoute: ActiveRoute;
+    public activeRoute: ActiveRoute=<ActiveRoute>{};
 
     constructor(private options: BootstrapOptions, public CM: IComponentManager) {
         this.originalUrl = window.location.origin;
         this._subject = new Effect();
-        this._subject.subscribe(console.log);
+        this._subject.subscribe();
         this.effect$=new EffectSubscription(this._subject);
         this.init();
     }
@@ -202,16 +202,15 @@ export class Router {
             path: route.path,
             navPath: url
         };
-        this.unsubscribeAllEffect();
-        Router.activeRoute = this.activeRoute;
+        this.unsubscribeAllEffect();        
         if (typeof route.data === 'function') {
             const res = route.data(route.routeParams) as Promise<any>;
             typeof res.then === 'function' && res.then(res => {
-                Router.activeRoute.data = res;                
+                this.activeRoute.data = res;                
                 this.CM.runChild(route, routeParams, url);
             });
         } else {
-            Router.activeRoute.data = route.data || {};            
+            this.activeRoute.data = route.data || {};            
             this.CM.runChild(route, routeParams, url);
         }
 
@@ -271,8 +270,7 @@ export class Router {
             _dispatch(action);
             this._subject.dispatch(action);
         }
-    }
-    public static activeRoute: ActiveRoute = <ActiveRoute>{};
+    }    
     public effect$: EffectSubscription;
     private _subject: Effect;
 }
