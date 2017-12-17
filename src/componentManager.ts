@@ -14,16 +14,15 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
 const h = require('snabbdom/h').default; // helper function
 
 export interface Action {
-    type: String;
+    type: any;
     payload?: any;
-    dispatch?:Function;
-    [key: string]: any;
+    dispatch?:Function;    
 }
 export interface Component {
-    init?: (dispatch: (action: Action) => void, params: any, router?: Router) => any;
-    view: (obj: { model: any, dispatch: (action: Action) => void , router?:Router}) => any;
+    init?: (dispatch:Function, params: any, router?: Router) => any;
+    view: (obj: { model: any, dispatch: Function , router?:Router}) => any;
     update?: (model: any, action: Action, router?:Router) => any;
-    afterViewRender?: (dispatch: (action: Action) => void, router:Router, state: any,) => void;
+    afterViewRender?: (dispatch: Function, router:Router, state: any,) => void;
     onDestroy?:()=>void;
     router?:Router
 }
@@ -34,10 +33,11 @@ export interface IComponentManager{
     json_stringify:(data:any)=>any;
     reset:()=>void;
     updateByModel:(model:any)=>void;
-    runChild:(route:RouteOptions, params:any, url:string)=>void;
+    runChild:(route:RouteOptions)=>void;
     run: (component:Component)=>void;
     canActivate:(route:RouteOptions, callback:Function)=>void;
     destroy:(path:any, callback:Function)=>void;
+    getAppState:()=>any;
     child:Component;   
     _isTestEnable?:boolean;
     _testCallback?:(data:any)=>void;
@@ -58,7 +58,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
     this.devTool = null;
     this._isTestEnable=false;
     this._testCallback;
-
+    this.getAppState=function(){return model;}
     function getEmptyCom(): Component {
         return {
             init: function () {
@@ -84,6 +84,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
         rootDispatch=router.bindEffect(dispatch);
         that.router.dispatch=rootDispatch;
         that._isTestEnable=false;
+        router.rootDispatch=rootDispatch;
     }
     function validateCom(com:any) {
 
@@ -108,13 +109,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
         validateCom(that.child);
         that._isTestEnable=false;
     }
-    function loadCom(route:RouteOptions, params:any, url:string) {
-        route.loadComponent().then((com:any) => {
-            route.component = com.default;
-            route.loadComponent = undefined;
-            that.runChild(route, params, url);
-        });
-    }
+    
     function updateUI() {
         const newVnode = mcom.view({
             model: model,
@@ -202,25 +197,45 @@ export function ComponentManager(boptions: BootstrapOptions) {
         model = _model;
         updateUI();
     }
-    this.runChild = function (route:RouteOptions, _params:any, url:string) {
+    function loadCom(route:RouteOptions) {
+        route.loadComponent().then((com:any) => {                
+            runChildHelper(com.default, route);
+        });
+    }
+    function runChildHelper(component:Component, route:RouteOptions){
+        active_route = route;
+        params = route.routeParams;
+        key = route.cache ? route.navPath : '';            
+        initChildComponent(component, that.router);
+        const cd = isInCache(key);
+        model.child = cd[0] ? cd[1].state : that.child.init(that.router.dispatch, route.routeParams, that.router);
+        updateUI();
+        if (typeof that.child.afterViewRender === 'function') {
+            that.child.afterViewRender(that.router.dispatch, that.router, model);
+        }
+        if (that.devTool) {
+            that.devTool.reset();
+        }
+        Array.isArray(route.effects) && route.effects.forEach(loadEffectService);
+    }
+    function loadEffectService(service){       
+        if(typeof service ==='object' && service.then){            
+            service.then(ef=>{
+                console.log(ef);
+                that.router.addEffectService(ef.default);
+            });
+        }else{
+            that.router.addEffectService(service);
+        }
+    }
+    this.runChild = function (route:RouteOptions) {
+        
         if (typeof route.loadComponent === 'function') {
             that.child = getEmptyCom();
             updateUI();
-            loadCom(route, _params, url);
+            loadCom(route);
         } else {
-            active_route = route;
-            params = _params;
-            key = route.cache ? url : '';            
-            initChildComponent(route.component, that.router);
-            const cd = isInCache(key);
-            model.child = cd[0] ? cd[1].state : that.child.init(that.router.dispatch, _params, that.router);
-            updateUI();
-            if (typeof that.child.afterViewRender === 'function') {
-                that.child.afterViewRender(that.router.dispatch, that.router, model);
-            }
-            if (that.devTool) {
-                that.devTool.reset();
-            }
+            runChildHelper(route.component, route);
         }
     }
     this.run = function (component:any) {

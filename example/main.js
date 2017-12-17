@@ -7,7 +7,7 @@ require('rxjs/add/operator/map');
 
 function init() {
   
-      return { count: 0, msg: '', search: [] }
+      return { count: 0, msg: ''}
   }
   
   function afterViewRender(dispatch, router) {
@@ -34,9 +34,9 @@ function init() {
   function update(model, action) {
   
       switch (action.type) {
-          case 'inc': return { count: model.count + 1, msg: '', search: [] };
-          case 'dec': return { count: model.count - 1, msg: '', search: [] };
-          case 'lazy':return { count: model.count, msg: 'loaading...', search: [] };         
+          case 'inc': return { count: model.count + 1, msg: '' };
+          case 'dec': return { count: model.count - 1, msg: '' };
+          case 'lazy':return { count: model.count, msg: 'loaading...' };         
           default:return model;
       }
   }

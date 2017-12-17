@@ -11,6 +11,7 @@ export interface RouteOptions {
     canActivate?: Function | any;
     canDeactivate?: Function | any;
     cache?: boolean;
+    effects?:any[],
     cacheUpdate_perStateChange?: boolean;
     cacheStrategy?: 'session' | 'local' | 'default';
     data?: (params: { [key: string]: any }) => Promise<any> | { [key: string]: any };
@@ -30,7 +31,7 @@ export class Router {
     constructor(private options: BootstrapOptions, public CM: IComponentManager) {
         this.originalUrl = window.location.origin;
         this._subject = new Effect();
-        this._subject.subscribe();
+        this._subject.subscribe(console.log);
         this.effect$=new EffectSubscription(this._subject);
         this.init();
     }
@@ -207,18 +208,26 @@ export class Router {
             const res = route.data(route.routeParams) as Promise<any>;
             typeof res.then === 'function' && res.then(res => {
                 this.activeRoute.data = res;                
-                this.CM.runChild(route, routeParams, url);
+                this.CM.runChild(route);
             });
         } else {
             this.activeRoute.data = route.data || {};            
-            this.CM.runChild(route, routeParams, url);
+            this.CM.runChild(route);
         }
 
+    }
+    public getAppState(){
+        return this.CM.getAppState();
+    }
+    public addEffectService(effect_service_class:any){
+        new effect_service_class(this.effect$, this);
+        return this;
     }
     private unsubscribeAllEffect(){
         this.effect$.unsubscribe();
         this.effect$=new EffectSubscription(this._subject);
     }
+    public rootDispatch:Function;
     private init() {
 
         if (!Array.isArray(this.options.routes)) {
@@ -265,10 +274,10 @@ export class Router {
     }
     public bindEffect(dispatch: Function): (action: Action) => void {
         let _dispatch = dispatch;
-        return (action: Action) => {
+        return (action: Action, brodcast:boolean=false) => {
             action.dispatch = _dispatch;
             _dispatch(action);
-            this._subject.dispatch(action);
+            brodcast && this._subject.dispatch(action);
         }
     }    
     public effect$: EffectSubscription;
