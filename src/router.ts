@@ -32,7 +32,7 @@ export class Router {
     constructor(private options: BootstrapOptions, public CM: IComponentManager) {
         this.originalUrl = window.location.origin;
         this._subject = new Effect();
-        this._subject.subscribe(console.log);
+        this._subject.subscribe();
         this.effect$=new EffectSubscription(this._subject);
         this.init();
     }

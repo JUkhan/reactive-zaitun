@@ -235,7 +235,7 @@ Also we can define a separate effect file (eg. `counterEffect.ts`)
 
 ```javascript
 
-import { Router, EffectSubscription } from './lib';
+import { Router, EffectSubscription } from 'zaitun';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/map';
 import counter from './counter';
@@ -335,6 +335,7 @@ function init(){
 
 function view({model, dispatch, router}){   
     return h('div',[
+        h('h3', 'Parent Component'),
         h('div', model.incAt?'Last incremented at: '+model.incAt:''),
         h('div', model.decAt?'Last decremented at: '+model.decAt:''),
         Counter.view({
@@ -380,6 +381,7 @@ Ans: Please look at the `Parent` component's `view` function bellow --where we c
 
 function view({model, dispatch, router}){   
     return h('div',[
+        h('h3', 'Parent Component'),
         h('div', model.incAt?'Last incremented at: '+model.incAt:''),
         h('div', model.decAt?'Last decremented at: '+model.decAt:''),
         Counter.view({
@@ -396,6 +398,7 @@ This is the resolved version of the `Parent` component't view function
 
 function view({model, dispatch, router}){   
     return h('div',[
+        h('h3', 'Parent Component'),
         h('div', model.incAt?'Last incremented at: '+model.incAt:''),
         h('div', model.decAt?'Last decremented at: '+model.decAt:''),
         Counter.view({
@@ -419,7 +422,7 @@ Let's go to the `counterEffect.ts` and write our thought there:
 
 ```javascript
 
-import { Router, EffectSubscription } from './lib';
+import { Router, EffectSubscription } from 'zaitun';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
@@ -475,6 +478,7 @@ function view({ model, dispatch }) {
 
 ```
 Now everything is going on well:)
+
 
 ## ROUTING - learn to navigate among the views(components)
 
@@ -716,6 +720,82 @@ const routes:RouteOptions[]=[
 
 ```
 Now effects should work properly
+
+As we have `RootComponent` and multiple pages. We can move the `last incremented at:` and `last decremented at:` messages from the `parent` component to the `RootComponent` and also move the related effects from `counterEffect` service to the `afterChildRender` life cycle hook function of the `RootComponent`
+
+ `Rootcomponent`  should look like:
+```javascript
+import {Router} from 'zaitun';
+import 'rxjs/add/operator/mergeMap';
+import {empty} from 'rxjs/observable/empty';
+import counter from './counter';
+
+const CHILD = Symbol('CHILD');
+const INC_AT='incAt';
+const DEC_AT='decAt';
+
+function init() {
+    return { 
+        incAt:null, decAt:null,     
+        menu: [
+            { path: 'page1', text: 'Page1' },
+            { path: 'page2', text: 'page2' },
+            { path:'page3/5/My favourite fruits', text:'page3'},
+            { path: 'counter', text: 'Counter' }, 
+            { path: 'parent', text: 'Parent' },           
+        ]
+    };
+}
+function afterChildRender(dispatch, router:Router){
+    router.effect$.addEffect(eff=>
+            eff.whenAction(counter.actions.INCREMENT)
+             .mergeMap(action=>{
+                dispatch({type:INC_AT, payload:new Date()});
+                return empty();
+             })
+        ).addEffect(eff=>
+            eff.whenAction(counter.actions.DECREMENT)
+             .mergeMap(action=>{
+                dispatch({type:DEC_AT, payload:new Date()});
+                return empty();
+             })
+        )  
+}
+function view({ model, dispatch, router }) {
+    return h('div', [
+        topMenu(model.menu, router),  
+        h('h3','Root Component'), 
+         h('div', model.incAt?'Last incremented at: '+model.incAt:''),
+        h('div', model.decAt?'Last decremented at: '+model.decAt:''),    
+        h('div', router.viewChild({ model: model.child, router, dispatch: action => dispatch({ type: CHILD, payload: action }) }))
+    ])
+}
+
+function update(model, action, router) {
+
+    switch (action.type) {
+        case CHILD: return { ...model,  child: router.updateChild(model.child, action.payload) };  
+        case INC_AT: return {...model, incAt:action.payload}
+        case DEC_AT: return {...model, decAt:action.payload}     
+        default:return model;
+    }
+}
+
+function topMenu(model, router) {
+    return h('nav.navbar.navbar-toggleable-md.navbar-inverse.fixed-top.bg-inverse', [
+        h('a.navbar-brand', { props: { href: "#/counter" } }, 'Zaitun'),
+        h('div.collapse.navbar-collapse#navbarCollapse',
+            h('ul.navbar-nav.mr-auto',
+                model.map(nav => h('li.nav-item', { class: { active: router.activeRoute.navPath === nav.path } }, [h('a.nav-link', { props: { href: '#/' + nav.path } }, nav.text)]))
+            )
+        )
+    ])
+}
+
+export default { init, view, update, afterChildRender}
+
+```
+Now these two messages should be appear every page.Cool! 
 
 ## Navigation Guards 
 Route configuration also have `canActivate` and `canDeactivate` options - see the following example

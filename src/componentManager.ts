@@ -24,7 +24,8 @@ export interface Component {
     update?: (model: any, action: Action, router?: Router) => any;
     afterViewRender?: (dispatch: Function, router: Router, state: any, ) => void;
     onDestroy?: () => void;
-    router?: Router
+    router?: Router;
+    afterChildRender?: (dispatch: Function, router: Router, state: any, ) => void;
 }
 export interface IComponentManager {
     router: Router;
@@ -213,6 +214,9 @@ export function ComponentManager(boptions: BootstrapOptions) {
         if (typeof that.child.afterViewRender === 'function') {
             that.child.afterViewRender(that.router.dispatch, that.router, model);
         }
+        if (typeof mcom.afterChildRender === 'function') {
+            mcom.afterChildRender(rootDispatch, that.router, model);
+        }        
         if (that.devTool) {
             that.devTool.reset();
         }
