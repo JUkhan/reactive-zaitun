@@ -3,7 +3,14 @@ Zaitun is a functional reactive framework for front-end application development 
 
 Zaitun uses [Elm Architecture](https://guide.elm-lang.org/architecture/) for component development and [Rxjs](http://reactivex.io/rxjs/) to make the component reactive and [Snabbdom](https://github.com/snabbdom/snabbdom) to render the view of a component
 
-
+## Quick start
+```sh
+git clone https://github.com/JUkhan/zaitun-starter-kit-typescript.git quickstart
+cd quickstart
+npm install
+npm run dev
+Browse http://localhost:8080
+```
 
 ## The Basic Pattern
 The logic of every Zaitun component will break up into three cleanly separated parts:
@@ -74,7 +81,7 @@ function update(model?: any, action?: Action) {
         default:return model;
     }
 }
-export default { init, view, update, afterViewRender, actions:{INCREMENT, DECREMENT } }
+export default { init, view, update, actions:{INCREMENT, DECREMENT } }
 
 
 ```
@@ -429,7 +436,7 @@ import 'rxjs/add/operator/mergeMap';
 import {empty} from 'rxjs/observable/empty';
 
 import counter from './counter';
-import counterList from './counterList';
+import parent from './parent';
 
 export class CounterEffect{
     constructor(es:EffectSubscription, router:Router){       
@@ -441,13 +448,13 @@ export class CounterEffect{
         ).addEffect(eff=>
             eff.whenAction(counter.actions.INCREMENT)
              .mergeMap(action=>{
-                router.dispatch({type:counterList.actions.INC_AT, payload:new Date()});
+                router.dispatch({type:parent.actions.INC_AT, payload:new Date()});
                 return empty();
              })
         ).addEffect(eff=>
             eff.whenAction(counter.actions.DECREMENT)
              .mergeMap(action=>{
-                router.dispatch({type:counterList.actions.DEC_AT, payload:new Date()});
+                router.dispatch({type:parent.actions.DEC_AT, payload:new Date()});
                 return empty();
              })
         )  
@@ -498,7 +505,7 @@ The RootComponent is defined in its own module `rootComponent.ts`
 
 ```javascript
 
-import {Router} from 'zaitun';
+import {Router, h} from 'zaitun';
 const CHILD = Symbol('CHILD');
 
 function init() {
@@ -602,6 +609,7 @@ import {bootstrap, RouteOptions} from 'zaitun';
 
 import rootCom  from './rootComponent';
 import page1 from './page1'; 
+declare const System:any;
 
 const routes:RouteOptions[]=[
     {path:"page1", component:page1},
@@ -621,20 +629,20 @@ For page 3 we will define out route options path like: `path:'page3/:times/:titl
 
 Now look at the `rootComponent.ts` file's `init` function 3rd menu item defined as `{ path:'page3/5/My favourite fruits', text:'page3'}`.So if we click on the `page 3` a routeParams object like `{times:5, title:'My favourite fruits'}` should be provided as a second param of the `init` function of the `page3` component.
 
-Although, we can pass data through the route config. This `data` option takes two types of data `object|promise`. Navigation should be applied after the data resolved,
+Although, we can pass data through the route config. This `data` option accepts two types of data `object|promise`. Navigation should be applied after the data resolved,
 
 OK, update the `main.ts` file like bellow:
 
 ```javascript
 import {bootstrap, RouteOptions} from 'zaitun';
-
+declare const System:any;
 import rootCom  from './rootComponent';
 import page1 from './page1'; 
 
 function getData(routeParams){
     return new Promise(accept=>{
         setTimeout(()=>{
-            acceot((new Array(routeParams.times))
+            accept((new Array(+routeParams.times))
                 .fill('fruit-')
                 .map((fruit,i)=>fruit+i)
             )
@@ -659,19 +667,20 @@ const routes:RouteOptions[]=[
 and develop the `page3` component like bellow:
 
 ```javascript
-import {Router} from 'zaitun';
+import {Router, h} from 'zaitun';
 
-function init(dispatch, routeParams, router:Router) {
+function init(dispatch, routeParams, router:Router) {   
     return {
-        title:routeParams.title      
+        title:routeParams.title ,     
         data:router.activeRoute.data
     };
 }
 
 function view({ model, dispatch, router }) {
+
     return h('div', [
         h('div', model.title),
-        model.data.map(fruit=>h('div', fruit))
+        h('ol',model.data.map(fruit=>h('li', fruit)))
     ])
 }
 
@@ -679,7 +688,7 @@ export default { init, view}
 
 
 ```
-If you click in the `page3` menu item- you can see the title and fruit list after 1 second `loading...` message. because we set timeout function 1 sec delay to resolve the data.
+If you click in the `page3` menu item- you can see the title and fruits list after 1 second. because we set the timeout function 1 sec delay to resolve the data.
 
 Now remaining `counter` and `parent`.
 
@@ -714,8 +723,8 @@ const routes:RouteOptions[]=[
     {path:"page1", component:page1},
     {path:"page2", loadComponent:()=>System.import('./page2')},
     {path:"page3/:times/:title", data:getData, loadComponent:()=>System.import('./page3')},
-    {path:"counter", effects:[()=>System.import('./counterEffect')], loadComponent:()=>System.import('./counter')},
-    {path:"parent", effects:[()=>System.import('./counterEffect')],  loadComponent:()=>System.import('./parent')}
+    {path:"counter", loadEffects:[()=>System.import('./counterEffect')], loadComponent:()=>System.import('./counter')},
+    {path:"parent", loadEffects:[()=>System.import('./counterEffect')],  loadComponent:()=>System.import('./parent')}
   ];
 
 ```
@@ -725,7 +734,7 @@ As we have `RootComponent` and multiple pages. We can move the `last incremented
 
  `Rootcomponent`  should look like:
 ```javascript
-import {Router} from 'zaitun';
+import {Router, h} from 'zaitun';
 import 'rxjs/add/operator/mergeMap';
 import {empty} from 'rxjs/observable/empty';
 import counter from './counter';
@@ -798,7 +807,7 @@ export default { init, view, update, afterChildRender}
 Now these two messages should be appear every page.Cool! 
 
 ## Navigation Guards 
-Route configuration also have `canActivate` and `canDeactivate` options - see the following example
+Route configuration also have `canActivate` and `canDeactivate` options - apply the following example
 
 - `canActivate`  - Decides if a route can be activated
 - `canDeactivate` - Decides if a route can be deactivated
@@ -807,20 +816,20 @@ Route configuration also have `canActivate` and `canDeactivate` options - see th
 
 ```javascript 
 class AuthService{
-    canActivate(router){ 
-      return new Promise(accept=>accept(true));
-
-    }
-    canDeactivate(component, router){ 
-      return component.canDeactivate();
-
-    }
+  canActivate(router){ 
+    //return new Promise(accept=>accept(true));
+    return confirm('are your 18+ ?')  
+  }
+  canDeactivate(component, router){ 
+    //return component.canDeactivate();
+    return confirm('Do you realy want to leave ?')
+  }
 }
 
 const routes=[
-  {path:'/counter', component:counterCom},
-  {path:'/counterList/:times/:msg', canDeactivate:AuthService, loadComponent:()=>System.import('./counterList')},
-  {path:'/todos',canActivate:AuthService, loadComponent:()=>System.import('./todos/todos')} 
+  {path:'/page2',canActivate:AuthService, loadComponent:()=>System.import('./page2')}, 
+  {path:'/parent', canDeactivate:AuthService, loadComponent:()=>System.import('./parent')}
+  
 ];
 
 

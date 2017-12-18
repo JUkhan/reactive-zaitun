@@ -1,7 +1,7 @@
 {
   "name": "zaitun",
   "version": "1.6.5",
-  "description": "A functional reactive framework for front-end application development.",
+  "description": "a functional reactive framework for front-end application development either in JavaScript or a language like TypeScript that compiles to JavaScript.",
   "main": "index.js",
   "module": "es/index.js",
   "typings": "index.d.ts",
@@ -38,13 +38,13 @@
     "prepublish": "npm run compile",
     "compress":"gulp compress",
     "compile-example": "browserify -d example/main.js -o example/browserified.js",
-    "release-major": "xyz --repo git@github.com/JUkhan/zaitun.git --increment major",
-    "release-minor": "xyz --repo git@github.com/JUkhan/zaitun.git --increment minor",
-    "release-patch": "xyz --repo git@github.com/JUkhan/zaitun.git --increment patch"
+    "release-major": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment major",
+    "release-minor": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment minor",
+    "release-patch": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment patch"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JUkhan/zaitun.git"
+    "url": "git+https://github.com/JUkhan/reactive-zaitun.git"
   },
   "keywords": [
     "virtual",
@@ -61,7 +61,7 @@
   "author": "Jasim Uddin Khan",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JUkhan/zaitun/issues"
+    "url": "https://github.com/JUkhan/reactive-zaitun/issues"
   },
-  "homepage": "https://github.com/JUkhan/zaitun#readme"
+  "homepage": "https://github.com/JUkhan/reactive-zaitun#readme"
 }
