@@ -765,7 +765,7 @@ bootstrap({
 
 But For javascript it is same for both
 ```javascript
-    Router.navigate('count')
+    router.navigate('count')
 ```
 ### Cache
 Zaitun provides convenient way to cache your application/page/component
