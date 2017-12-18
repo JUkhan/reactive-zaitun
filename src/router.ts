@@ -48,9 +48,9 @@ export class Router {
 
         });
     }
-    whenAction(action: Action, callback) {
+    whenAction(action: Action, callback, broadcast=false) {
         this.CM._testCallback = callback;
-        this.dispatch(action);
+        this.dispatch(action, broadcast);
 
     }
     private clearSlashes(path: any) {
@@ -263,7 +263,7 @@ export class Router {
         }, 0);
         return this;
     }
-    public dispatch: (action: Action) => void;
+    public dispatch: (action: Action, broadcast?:boolean) => void;
     public viewChild(obj: { model: any, dispatch: (action: Action) => void }): any {
         obj.dispatch = this.bindEffect(obj.dispatch);
         this.dispatch = obj.dispatch;

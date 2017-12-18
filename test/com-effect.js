@@ -70,7 +70,7 @@ describe ('counter component', function () {
 
   it ('lazy loading(effect)', function (done) {
     router.test ().then (res => {
-      res.whenAction ({type: 'lazy'}, res => {        
+      res.whenAction ({type: 'lazy'}, res => {  console.log('asd: ',res);      
         if(res.action.type==='lazy'){
           assert.deepEqual (res.model, {count:0, msg:'loaading...'});
         }
@@ -79,7 +79,7 @@ describe ('counter component', function () {
           done ();
         }
          
-      });
+      },true);
     });
   });
 

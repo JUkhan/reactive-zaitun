@@ -36,7 +36,7 @@
     "compile-umd": "tsc --outDir umd --module umd --moduleResolution node",
     "compile-commonjs": "tsc --outDir ./",
     "prepublish": "npm run compile",
-    "compress":"gulp compress",
+    "compress": "gulp compress",
     "compile-example": "browserify -d example/main.js -o example/browserified.js",
     "release-major": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment major",
     "release-minor": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment minor",

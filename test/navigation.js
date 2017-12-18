@@ -161,7 +161,7 @@ var rootCom = function () {
     }
   }
   function topMenu (model, router) {
-    console.log (router, router.activeRoute);
+    
     return h (
       'nav.navbar.navbar-toggleable-md.navbar-inverse.fixed-top.bg-inverse',
       [
