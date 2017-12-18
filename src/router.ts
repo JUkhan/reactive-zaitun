@@ -12,6 +12,7 @@ export interface RouteOptions {
     canDeactivate?: Function | any;
     cache?: boolean;
     effects?:any[],
+    loadEffects?:any[],
     cacheUpdate_perStateChange?: boolean;
     cacheStrategy?: 'session' | 'local' | 'default';
     data?: (params: { [key: string]: any }) => Promise<any> | { [key: string]: any };
