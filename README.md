@@ -776,7 +776,7 @@ Caching should not be applied if you set the cache proerty true of the route con
 
 ## onDestroy
 
-Component should have a `onDestroy` life cycle hook method that should be fired on time of navigation changing 
+Component should have a `onDestroy` life cycle hook method that should be fired on the time of navigation changing 
 
 
 
