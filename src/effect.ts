@@ -3,7 +3,7 @@ import {Subscription} from 'rxjs/Subscription';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
 import {filter} from 'rxjs/operator/filter';
-import { Action } from './componentManager';
+import { Action } from './models';
 
 export class Effect extends Subject<Action>{
     dispatch(action){       

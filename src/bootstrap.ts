@@ -1,16 +1,7 @@
-import {RouteOptions, Router} from './router';
+import {BootstrapOptions} from './models';
+import { Router} from './router';
 import {ComponentManager} from './componentManager';
 
-export interface BootstrapOptions{
-    containerDom: string | Element;
-    mainComponent: any;
-    routes?: RouteOptions[];
-    activePath?: string;
-    devTool?: boolean;
-    locationStrategy?: 'hash' | 'history';
-    baseUrl?: string;
-    cacheStrategy?: 'session' | 'local' | 'default';
-}
 export function bootstrap(options:BootstrapOptions):Router{
     
     if (!options.containerDom) {

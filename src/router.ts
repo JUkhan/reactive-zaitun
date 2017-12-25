@@ -1,29 +1,7 @@
-import { BootstrapOptions } from './bootstrap';
-import { IComponentManager, Action } from './componentManager';
 import { DevTool } from "./devTool/devTool";
 import { Effect, EffectSubscription } from './effect';
+import {ActiveRoute, ViewObj, RouteOptions, BootstrapOptions, Action, IComponentManager, Dispatch} from './models';
 
-
-export interface RouteOptions {
-    path: string;
-    component?: any;
-    loadComponent?: any;
-    canActivate?: Function | any;
-    canDeactivate?: Function | any;
-    cache?: boolean;
-    effects?:any[],
-    loadEffects?:any[],
-    cacheUpdate_perStateChange?: boolean;
-    cacheStrategy?: 'session' | 'local' | 'default';
-    data?: (params: { [key: string]: any }) => Promise<any> | { [key: string]: any };
-    [key: string]: any;
-}
-export interface ActiveRoute {
-    routeParams: { [key: string]: any },
-    path: string,
-    navPath: string,
-    data?: any
-}
 export class Router {
     private originalUrl = window.location.origin;
     private _fap = '';
@@ -264,7 +242,7 @@ export class Router {
         return this;
     }
     public dispatch: (action: Action, broadcast?:boolean) => void;
-    public viewChild(obj: { model: any, dispatch: (action: Action) => void }): any {
+    public viewChild(obj: ViewObj): any {
         obj.dispatch = this.bindEffect(obj.dispatch);
         this.dispatch = obj.dispatch;
         return this.CM.child.view(obj);
@@ -273,7 +251,7 @@ export class Router {
     public updateChild(model: any, action: Action) {
         return this.CM.child.update(model, action);
     }
-    public bindEffect(dispatch: Function): (action: Action) => void {
+    public bindEffect(dispatch: Dispatch): Dispatch {
         let _dispatch = dispatch;
         return (action: Action, brodcast:boolean=false) => {
             action.dispatch = _dispatch;

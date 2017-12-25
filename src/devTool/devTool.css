@@ -4,7 +4,7 @@
     position: absolute;
     background-color:gray;
     border: thin 1px black; 
-    min-height: 500px;    
+    height: 500px;    
     padding-right:10px; 
     top:0px;
     left: 800px;
@@ -31,4 +31,10 @@
 }
 .selected-action{
     background-color: lightgray;
+}
+
+.tool-hideBtn{
+    position: relative;
+    color: blue;
+    float: right;
 }

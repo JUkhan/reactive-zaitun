@@ -1,7 +1,6 @@
 import { Router } from './router';
-import { BootstrapOptions } from './bootstrap';
-import { RouteOptions } from './index';
-import { DevTool } from './devTool/devTool';
+import { RouteOptions } from './models';
+import { Component, Action, BootstrapOptions } from './models';
 
 declare const require: any;
 const snabbdom = require('snabbdom');
@@ -13,38 +12,8 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
 ]);
 const h = require('snabbdom/h').default; // helper function
 
-export interface Action {
-    type: any;
-    payload?: any;
-    dispatch?: Function;
-}
-export interface Component {
-    init?: (dispatch: Function, params: any, router?: Router) => any;
-    view: (obj: { model: any, dispatch: Function, router?: Router }) => any;
-    update?: (model: any, action: Action, router?: Router) => any;
-    afterViewRender?: (dispatch: Function, router: Router, state: any, ) => void;
-    onDestroy?: () => void;
-    router?: Router;
-    afterChildRender?: (dispatch: Function, router: Router, state: any, ) => void;
-}
-export interface IComponentManager {
-    router: Router;
-    devTool: DevTool;
-    json_parse: (data: string) => any;
-    json_stringify: (data: any) => any;
-    reset: () => void;
-    updateByModel: (model: any) => void;
-    runChild: (route: RouteOptions) => void;
-    run: (component: Component) => void;
-    canActivate: (route: RouteOptions, callback: Function) => void;
-    destroy: (path: any, callback: Function) => void;
-    getAppState: () => any;
-    child: Component;
-    _isTestEnable?: boolean;
-    _testCallback?: (data: any) => void;
-}
 export function ComponentManager(boptions: BootstrapOptions) {
-    let mcom: Component = <Component>{},
+    var mcom: Component = <Component>{},
         model: any = {},
         params: any = null,
         key = '',
@@ -53,6 +22,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
         vnode: any = boptions.containerDom,
         options: BootstrapOptions = boptions,
         rootDispatch: any,
+        root_com_cache_id = 'rootid',
         that = this;
 
     this.router = null;
@@ -129,8 +99,8 @@ export function ComponentManager(boptions: BootstrapOptions) {
         if (that.devTool) {
             that.devTool.setAction(action, model);
         }
-        if (active_route.cache && active_route.cacheUpdate_perStateChange) {
-            setComponentToCache(key, that.child, model.child);
+        if (active_route.cache || (options.cacheStrategy === 'local' || options.cacheStrategy === 'session')) {
+            setComponentToCache(key, model);
         }
     }
     function fireDestroyEvent(path: string, callback: Function) {
@@ -139,44 +109,46 @@ export function ComponentManager(boptions: BootstrapOptions) {
             clearTimeout(tid);
         }, 0);
         if (key) {
-            setComponentToCache(key, that.child, model.child);
+            setComponentToCache(key, model);
         }
         if (typeof that.child.onDestroy === 'function') {
             that.child.onDestroy();
         }
 
-    }
-    function isInCache(key: string): any[] {
-        const data = key ? getCacheData() : {},
-            hasCache = !!(key && data[key]),
-            res: any[] = [hasCache];
-        if (hasCache) {
-            res.push(data[key]);
+    }   
+    
+    function setComponentToCache(key: any, state: any) {
+
+        if (active_route.cache) {
+            if (getCacheStrategy() === 'session') {
+                sessionStorage.setItem(key, that.json_stringify(state.child));
+            } else if (getCacheStrategy() === 'local') {
+                localStorage.setItem(key, that.json_stringify(state.child));
+            } else {
+                cacheObj[key] = state.child;
+            }
         }
-        return res;
-    }
-    function setComponentToCache(key: any, instance: any, state: any) {
-        const data = getCacheData();
-        data[key] = {
-            //instance: instance,
-            state: state
-        };
-        if (getCacheStrategy() === 'session') {
-            sessionStorage.setItem('app_cache', that.json_stringify(data));
-        } else if (getCacheStrategy() === 'local') {
-            localStorage.setItem('app_cache', that.json_stringify(data));
-        } else {
-            cacheObj = data;
+        let obj = { ...state };
+        obj.child = null;
+        if (options.cacheStrategy === 'session') {
+            sessionStorage.setItem(root_com_cache_id, that.json_stringify(obj));
+        } else if (options.cacheStrategy === 'local') {
+            localStorage.setItem(root_com_cache_id, that.json_stringify(obj));
         }
+        else {
+            cacheObj[root_com_cache_id] = obj;
+        }
+
+
     }
 
-    function getCacheData() {
+    function getCacheData(key: any) {
         if (getCacheStrategy() === 'session') {
-            return that.json_parse(sessionStorage.getItem('app_cache') || '{}');
+            return that.json_parse(sessionStorage.getItem(key));
         } else if (getCacheStrategy() === 'local') {
-            return that.json_parse(localStorage.getItem('app_cache') || '{}');
+            return that.json_parse(localStorage.getItem(key));
         }
-        return cacheObj;
+        return cacheObj[key];
     }
     function getCacheStrategy() {
         return active_route.cacheStrategy ? active_route.cacheStrategy : options.cacheStrategy;
@@ -208,21 +180,26 @@ export function ComponentManager(boptions: BootstrapOptions) {
         params = route.routeParams;
         key = route.cache ? route.navPath : '';
         initChildComponent(component, that.router);
-        const cd = isInCache(key);
-        model.child = cd[0] ? cd[1].state : that.child.init(that.router.dispatch, route.routeParams, that.router);
+        if (key) {            
+            model.child =  getCacheData(key) ||
+                that.child.init(that.router.dispatch, route.routeParams, that.router);
+        } else {
+            model.child = that.child.init(that.router.dispatch, route.routeParams, that.router);
+        }
+
         updateUI();
         if (typeof that.child.afterViewRender === 'function') {
             that.child.afterViewRender(that.router.dispatch, that.router, model);
         }
         if (typeof mcom.afterChildRender === 'function') {
             mcom.afterChildRender(rootDispatch, that.router, model);
-        }        
+        }
         if (that.devTool) {
             that.devTool.reset();
         }
-        Array.isArray(route.effects) && route.effects.forEach(service=>that.router.addEffectService(service));
+        Array.isArray(route.effects) && route.effects.forEach(service => that.router.addEffectService(service));
         Array.isArray(route.loadEffects) && route.loadEffects.forEach(loadEffectService);
-        
+
     }
     function loadEffectService(service) {
         service().then(ef => {
@@ -240,7 +217,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
     }
     this.run = function (component: any) {
         initMainComponent(component, that.router);
-        model = mcom.init(rootDispatch, that.router);
+        model =getCacheData(root_com_cache_id)|| mcom.init(rootDispatch, that.router);
         updateUI();
         if (typeof mcom.afterViewRender === 'function') {
             mcom.afterViewRender(rootDispatch, that.router, model);

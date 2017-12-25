@@ -7,8 +7,8 @@ Zaitun uses [Elm Architecture](https://guide.elm-lang.org/architecture/) for com
 ```sh
 git clone https://github.com/JUkhan/zaitun-starter-kit-typescript.git quickstart
 cd quickstart
-npm install
-npm run dev
+npm start
+npm run build:prod
 Browse http://localhost:8080
 ```
 
@@ -57,7 +57,7 @@ class Component{
 The counter component is defined in its own module ‘counter.ts’
 ```javascript
 
-import {h, Action} from 'zaitun';
+import {h, Action, ViewObj} from 'zaitun';
 
 const INCREMENT='inc';
 const DECREMENT='dec';
@@ -65,7 +65,7 @@ const DECREMENT='dec';
 function init() {
     return { count: 0}
 }
-function view({ model, dispatch }) {
+function view({ model, dispatch }:ViewObj) {
 
     return h('span', [
         h('button', { on: { click: e => dispatch({ type: INCREMENT }) } }, '+'),       
@@ -73,7 +73,7 @@ function view({ model, dispatch }) {
         h('span', model.msg || model.count)
     ]);
 }
-function update(model?: any, action?: Action) {
+function update(model: any, action: Action) {
 
     switch (action.type) {
         case INCREMENT: return { count: model.count + 1, msg: ''};
@@ -109,7 +109,7 @@ What's happen when we call the bootstrap method - passing `Counter` as a main co
 
 Ans: Zaitun first call the `init` function of `Counter` componet with 3 params(dispatch, routeParams, router). Please keep going on - ignore the params for this time being.
 
-Then the `view` function should be called with a single param. The param's type is `object` and it has three props`{model, dispatch, router}`. Here `model` is exactly what came from calling `init` function:`{count:0}`. When the `view` function return - it should be rendered into the browser and waiting for whether any `action` is being dispatch. 
+Then the `view` function should be called with a single param. The param's type is `ViewObj` and it has three props`{model, dispatch, router}`. Here `model` is exactly what came from calling `init` function:`{count:0}`. When the `view` function return - it should be rendered into the browser and waiting for whether any `action` is being dispatch. 
 
 If you click on the `+` button, it calls the `dispatch` function with `action` param: `dispatch({type:INCREMENT})`. After calling `dispatch` the `update` function should be called with 2 params `model` and `action`.The `action` param should be exactly what you passed into the `dispatch:{type:INCREMENT}` function and the model should be `{count:0}`, Now the `update` function will return a brand new model:`{count:1}`.
 
@@ -132,12 +132,12 @@ We can explain this in a short way like bellow:
 ## Note
 The view/update are both pure functions, they have no dependency on any external environment besides their input. The counter component itself doesn’t hold any state or variable, it just describes how to construct a view from a given state, and how to update a given state with a given action. Thanks to its purity, the counter component can be easily plugged into any environment that is able to supply it with its dependencies : a state  and an action.
 
-## How to make your application more reactive adding side effects against a dispatched action
+## Adding side effects against a dispatched action
 
 There are several of ways to integrate effects in our application. One of them is to add effects into the `afterViewRender` life cycle hook method
 
 ```javascript
-function afterViewRender(dispatch, router: Router, model) {
+function afterViewRender(dispatch:Dispatch, router: Router, model) {
    
         router.effect$
         .addEffect(effect$ =>
@@ -159,7 +159,7 @@ Now see, what's happening after adding this effect - when `counter` component `d
 
 Here we go, change the `counter` component's `view` a bit
 ```javascript
-function view({ model, dispatch }) {
+function view({ model, dispatch }:ViewObj) {
 
     return h('div', [
         h('button', { on: { click: e => dispatch({ type: INCREMENT }) } }, '+'),
@@ -177,7 +177,7 @@ Please look at here `dispatch({ type: LAZY }, true)`. We are passing 2 params to
 We are going to render the `loading...` message when user click on `+(Async)` button. So we need to change the `update` function accordingly
 
 ```javascript
-function update(model?: any, action?: Action) {
+function update(model: any, action: Action) {
 
     switch (action.type) {
         case INCREMENT: return { count: model.count + 1, msg: ''};
@@ -192,7 +192,7 @@ If we bring all the updates together our `counter` component looks like:
 
 ```javascript
 
-import {h, Action, Router} from 'zaitun';
+import {h, Action, Router, ViewObj} from 'zaitun';
 
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/map';
@@ -215,7 +215,7 @@ function afterViewRender(dispatch, router: Router, model?) {
               
 }
 
-function view({ model, dispatch }) {
+function view({ model, dispatch }:ViewObj) {
 
     return h('span', [
         h('button', { on: { click: e => dispatch({ type: INCREMENT }) } }, '+'),
@@ -224,7 +224,7 @@ function view({ model, dispatch }) {
         h('span', model.msg || model.count)
     ]);
 }
-function update(model?: any, action?: Action) {
+function update(model: any, action: Action) {
 
     switch (action.type) {
         case INCREMENT: return { count: model.count + 1, msg: ''};
@@ -329,7 +329,7 @@ Now we will develop a parent component such a way where our `Counter` component 
 The `Parent` component is defined in its own module `parent.ts`
 ```javascript
 
-import { Router, h, Action } from 'zaitun';
+import { Router, h, Action, ViewObj } from 'zaitun';
 import Counter from './counter';
 
 const COUNTER_UPDATE='counterUpdate';
@@ -340,7 +340,7 @@ function init(){
     return {counter:Counter.init(), incAt:null, decAt:null}
 }
 
-function view({model, dispatch, router}){   
+function view({model, dispatch, router}:ViewObj){   
     return h('div',[
         h('h3', 'Parent Component'),
         h('div', model.incAt?'Last incremented at: '+model.incAt:''),
@@ -386,7 +386,7 @@ Now question is how to make the effects workable?
 Ans: Please look at the `Parent` component's `view` function bellow --where we called the `Counter.view()` function with `model` and `dispatch`. Our problem will be resolved if we pass the counter `dispatch` through out the `router.bindEffect(dispatch)` function
 ```javascript
 
-function view({model, dispatch, router}){   
+function view({model, dispatch, router}:ViewObj){   
     return h('div',[
         h('h3', 'Parent Component'),
         h('div', model.incAt?'Last incremented at: '+model.incAt:''),
@@ -403,7 +403,7 @@ This is the resolved version of the `Parent` component't view function
 
 ```javascript
 
-function view({model, dispatch, router}){   
+function view({model, dispatch, router}:ViewObj){   
     return h('div',[
         h('h3', 'Parent Component'),
         h('div', model.incAt?'Last incremented at: '+model.incAt:''),
@@ -448,13 +448,13 @@ export class CounterEffect{
         ).addEffect(eff=>
             eff.whenAction(counter.actions.INCREMENT)
              .mergeMap(action=>{
-                router.dispatch({type:parent.actions.INC_AT, payload:new Date()});
+                router.dispatch({type:parent.actions.INC_AT, payload:new Date().toUTCString()});
                 return empty();
              })
         ).addEffect(eff=>
             eff.whenAction(counter.actions.DECREMENT)
              .mergeMap(action=>{
-                router.dispatch({type:parent.actions.DEC_AT, payload:new Date()});
+                router.dispatch({type:parent.actions.DEC_AT, payload:new Date().toUTCString()});
                 return empty();
              })
         )  
@@ -473,7 +473,7 @@ Click on the `-` button: oops! `Last decremented at:...` not showing - `could yo
 Yes of course we need to set the the second params of the `dispathch` function as `true`. So that these actions(`INCREMENT`,`DECREMENT`) should be exposed to work with effects 
 
 ```javascript
-function view({ model, dispatch }) {
+function view({ model, dispatch }:ViewObj) {
 
     return h('div', [
         h('button', { on: { click: e => dispatch({ type: INCREMENT },true) } }, '+'),
@@ -505,7 +505,7 @@ The RootComponent is defined in its own module `rootComponent.ts`
 
 ```javascript
 
-import {Router, h} from 'zaitun';
+import {Router, h, ViewObj} from 'zaitun';
 const CHILD = Symbol('CHILD');
 
 function init() {
@@ -520,7 +520,7 @@ function init() {
     };
 }
 
-function view({ model, dispatch, router }) {
+function view({ model, dispatch, router }:ViewObj) {
     return h('div', [
         topMenu(model.menu, router),  
         h('h3','Root Component'),     
@@ -528,9 +528,10 @@ function view({ model, dispatch, router }) {
     ])
 }
 
-function update(model, action, router) {
+function update(model, action, router:Router) {
 
     switch (action.type) {
+        //note: here router.updateChild(...) must set with 'child' property of the model
         case CHILD: return { ...model,  child: router.updateChild(model.child, action.payload) };       
         default:return model;
     }
@@ -734,7 +735,7 @@ As we have `RootComponent` and multiple pages. We can move the `last incremented
 
  `Rootcomponent`  should look like:
 ```javascript
-import {Router, h} from 'zaitun';
+import {Router, h, ViewObj, Dispatch} from 'zaitun';
 import 'rxjs/add/operator/mergeMap';
 import {empty} from 'rxjs/observable/empty';
 import counter from './counter';
@@ -755,22 +756,22 @@ function init() {
         ]
     };
 }
-function afterChildRender(dispatch, router:Router){
+function afterChildRender(dispatch:Dispatch, router:Router){
     router.effect$.addEffect(eff=>
             eff.whenAction(counter.actions.INCREMENT)
              .mergeMap(action=>{
-                dispatch({type:INC_AT, payload:new Date()});
+                dispatch({type:INC_AT, payload:new Date().toUTCString()});
                 return empty();
              })
         ).addEffect(eff=>
             eff.whenAction(counter.actions.DECREMENT)
              .mergeMap(action=>{
-                dispatch({type:DEC_AT, payload:new Date()});
+                dispatch({type:DEC_AT, payload:new Date().toUTCString()});
                 return empty();
              })
         )  
 }
-function view({ model, dispatch, router }) {
+function view({ model, dispatch, router }:ViewObj) {
     return h('div', [
         topMenu(model.menu, router),  
         h('h3','Root Component'), 
@@ -780,7 +781,7 @@ function view({ model, dispatch, router }) {
     ])
 }
 
-function update(model, action, router) {
+function update(model, action:Action, router:Router) {
 
     switch (action.type) {
         case CHILD: return { ...model,  child: router.updateChild(model.child, action.payload) };  
