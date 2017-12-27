@@ -49,3 +49,7 @@ node_modules
 /index.js.map
 /es
 /devTool
+/example/node_modules
+/example/dist
+/example/.awcache
+/example/package-lock.json

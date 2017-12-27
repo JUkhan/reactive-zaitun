@@ -161,7 +161,6 @@ var rootCom = function () {
     }
   }
   function topMenu (model, router) {
-    
     return h (
       'nav.navbar.navbar-toggleable-md.navbar-inverse.fixed-top.bg-inverse',
       [
@@ -205,21 +204,24 @@ const routes = [
   {path: '/treeView', data: loadData, component: treeCom ()},
 ];
 
-describe ('navigation test', function () {
+describe ('route data test', function () {
   var elm, router;
   elm = document.createElement ('div');
 
   router = zaitun.bootstrap ({
     containerDom: elm,
     routes: routes,
-    activePath: 'counter',
+    activePath: 'treeView',
     mainComponent: rootCom (),
   });
-  
+
   describe ('navigate to tree component', function () {
-    it ('it should have initial data coming from route data property(promise data)', function (done) {
-      router.navigate ('treeView').test ().then (res => {
-        res.whenAction ({type: 'fake action-just for data test'}, res => {
+    it ('it should have initial data coming from route data property(promise data)', function (
+      done
+    ) {
+    
+      router.test ().
+        whenAction ({type: 'fake action-just for data test'}, res => {
           assert.deepEqual (res.model.child.data, [
             {name: 'item1', id: 1},
             {
@@ -230,8 +232,7 @@ describe ('navigation test', function () {
             {name: 'item3', id: 6},
           ]);
           done ();
-        });
-      });
+        });     
     });
   });
 });

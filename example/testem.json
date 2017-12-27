@@ -1,13 +1,12 @@
 {
   "framework": "mocha",
-  "src_files": [
-    "index.js",
-    "test/*.js"
+  "src_files": [    
+    "ctest/*.js"
   ],
   "serve_files": [
     "browserified.js"
   ],
-  "before_tests": "browserify -d test/index.js -o browserified.js",
+  "before_tests": "browserify -d ctest/index.js -o browserified.js",
   "on_exit": "rm browserified.js",
   "launch_in_dev": ["chrome"]
 }

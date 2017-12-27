@@ -1,32 +1,27 @@
 import { DevTool } from "./devTool/devTool";
 import { Effect, EffectSubscription } from './effect';
-import {ActiveRoute, ViewObj, RouteOptions, BootstrapOptions, Action, IComponentManager, Dispatch} from './models';
+import { ActiveRoute, ViewObj, RouteOptions, BootstrapOptions, Action, IComponentManager, Dispatch } from './models';
 
 export class Router {
     private originalUrl = window.location.origin;
     private _fap = '';
-    public activeRoute: ActiveRoute=<ActiveRoute>{};
+    public activeRoute: ActiveRoute = <ActiveRoute>{};
 
     constructor(private options: BootstrapOptions, public CM: IComponentManager) {
         this.originalUrl = window.location.origin;
         this._subject = new Effect();
         this._subject.subscribe();
-        this.effect$=new EffectSubscription(this._subject);
+        this.effect$ = new EffectSubscription(this._subject);
         this.init();
     }
-    effectInstance(){
+    effectInstance() {
         return new EffectSubscription(this._subject);
     }
-    test(): Promise<Router> {
-        return new Promise<Router>(accept => {
-            setTimeout(() => {
-                this.CM._isTestEnable = true;
-                accept(this);
-            }, 0);
-
-        });
+    test(): Router {
+        this.CM._isTestEnable = true;
+        return this;
     }
-    whenAction(action: Action, callback, broadcast=false) {
+    whenAction(action: Action, callback, broadcast = false) {
         this.CM._testCallback = callback;
         this.dispatch(action, broadcast);
 
@@ -173,7 +168,7 @@ export class Router {
 
     }
 
-    private renderHelper(route: RouteOptions, routeParams: any, url: any) {        
+    private renderHelper(route: RouteOptions, routeParams: any, url: any) {
         route._ca_checked = false;
         route.routeParams = routeParams;
         route.navPath = url;
@@ -182,31 +177,31 @@ export class Router {
             path: route.path,
             navPath: url
         };
-        this.unsubscribeAllEffect();        
+        this.unsubscribeAllEffect();
         if (typeof route.data === 'function') {
             const res = route.data(route.routeParams) as Promise<any>;
             typeof res.then === 'function' && res.then(res => {
-                this.activeRoute.data = res;                
+                this.activeRoute.data = res;
                 this.CM.runChild(route);
             });
         } else {
-            this.activeRoute.data = route.data || {};            
+            this.activeRoute.data = route.data || {};
             this.CM.runChild(route);
         }
 
     }
-    public getAppState(){
+    public getAppState() {
         return this.CM.getAppState();
     }
-    public addEffectService(effect_service_class:any){
+    public addEffectService(effect_service_class: any) {
         new effect_service_class(this.effect$, this);
         return this;
     }
-    private unsubscribeAllEffect(){
+    private unsubscribeAllEffect() {
         this.effect$.unsubscribe();
-        this.effect$=new EffectSubscription(this._subject);
+        this.effect$ = new EffectSubscription(this._subject);
     }
-    public rootDispatch:Function;
+    public rootDispatch: Function;
     private init() {
 
         if (!Array.isArray(this.options.routes)) {
@@ -239,9 +234,8 @@ export class Router {
             }
             clearTimeout(tid);
         }, 0);
-        return this;
     }
-    public dispatch: (action: Action, broadcast?:boolean) => void;
+    public dispatch: (action: Action, broadcast?: boolean) => void;
     public viewChild(obj: ViewObj): any {
         obj.dispatch = this.bindEffect(obj.dispatch);
         this.dispatch = obj.dispatch;
@@ -253,12 +247,12 @@ export class Router {
     }
     public bindEffect(dispatch: Dispatch): Dispatch {
         let _dispatch = dispatch;
-        return (action: Action, brodcast:boolean=false) => {
+        return (action: Action, brodcast: boolean = false) => {
             action.dispatch = _dispatch;
             _dispatch(action);
             brodcast && this._subject.dispatch(action);
         }
-    }    
+    }
     public effect$: EffectSubscription;
     private _subject: Effect;
 }

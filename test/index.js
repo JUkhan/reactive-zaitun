@@ -1,2 +1,2 @@
 require('./com-effect');
-require('./navigation');
+require('./routeData');

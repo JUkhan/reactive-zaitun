@@ -1,0 +1,45 @@
+{
+  "name": "zaitun-example",
+  "version": "1.0.0",
+  "description": "Example for typescript and webpack with hot module replacement",
+  "scripts": {
+    "format": "prettier --tab-width 4 --single-quote --write './**/*.{js,jsx,ts,tsx}'",
+    "start": "webpack-dev-server --config=dev.webpack.config.js",
+    "build": "rimraf dist && webpack --config=dev.webpack.config.js",
+    "build:prod": "rimraf dist && webpack -p --config=prod.webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krausest/ts-webpack-hmr"
+  },
+  "keywords": [
+    "webpack",
+    "hot module replacement",
+    "hmr",
+    "typescript",
+    ""
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "materialize-css": "^0.100.2",
+    "snabbdom-jsx": "^0.4.2"
+  },
+  "devDependencies": {
+    "@types/webpack-env": "^1.13.0",
+    "awesome-typescript-loader": "^3.2.1",
+    "css-loader": "^0.28.7",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "file-loader": "^1.1.6",
+    "html-loader": "^0.5.1",
+    "html-webpack-plugin": "^2.30.1",
+    "loglevel": "^1.4.1",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.19.1",
+    "typescript": "^2.4.2",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.3.0",
+    "webpack-dev-server": "^2.6.0",
+    "webpack-merge": "^4.1.1"
+  }
+}

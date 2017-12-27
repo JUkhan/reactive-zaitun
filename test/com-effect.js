@@ -51,26 +51,21 @@ describe ('counter component', function () {
   beforeEach (function () {});
 
   it ('increment', function (done) {
-    router.test ().then (res => {
-      res.whenAction ({type: 'inc'}, res => {
+    router.test ().whenAction ({type: 'inc'}, res => {
         assert.equal (res.model.count, 1);
         done ();
-      });
-    });
+      });   
   });
 
   it ('decrement', function (done) {
-    router.test ().then (res => {
-      res.whenAction ({type: 'dec'}, res => {
+    router.test ().whenAction ({type: 'dec'}, res => {
         assert.equal (res.model.count, 0);
         done ();
-      });
-    });
+      });    
   });
 
   it ('lazy loading(effect)', function (done) {
-    router.test ().then (res => {
-      res.whenAction ({type: 'lazy'}, res => {  console.log('asd: ',res);      
+    router.test ().whenAction ({type: 'lazy'}, res => {  console.log('asd: ',res);      
         if(res.action.type==='lazy'){
           assert.deepEqual (res.model, {count:0, msg:'loaading...'});
         }
@@ -80,7 +75,6 @@ describe ('counter component', function () {
         }
          
       },true);
-    });
-  });
+    });  
 
 });
