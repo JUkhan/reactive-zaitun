@@ -123,7 +123,7 @@ export class DevTool {
                 ]),
                 h('div.tool-states', {
                     style: ({
-                        payload: (model.height - 40) + 'px'
+                        height: (model.height - 40) + 'px'
                     })
                 },
                     model.states.map((item, index) => this.DebugStates(item, handler, index))
@@ -208,8 +208,12 @@ export class DevTool {
                 const state = Object.assign({}, action.payload, {
                     actionType: typeArr.filter(action => action !== 'CHILD').join('-')
                 });
+                model.states.push(state);                
+                if(model.states.length>100){
+                    model.states.shift();
+                }
                 return Object.assign({}, model, {
-                    states: [...model.states, state]
+                    states: model.states
                 });
             case selectAction:
                 model.states.forEach(ac => ac.selected = false);
@@ -234,12 +238,10 @@ export class DevTool {
             type = action.type.toString().replace('Symbol(', '');
             type = type.substr(0, type.length - 1);
         }
-        typeArr.push(type);
-        for (let prop in action) {
-            if (typeof action[prop] === 'object' && action[prop].type) {
-                this.getType(action[prop], typeArr);
-                return;
-            }
+        typeArr.push(type);        
+        if (action.payload && action.payload.type) {
+            this.getType(action.payload, typeArr);
+            return;
         }
     }
 
