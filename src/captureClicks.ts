@@ -1,13 +1,4 @@
-// import xs, {Stream, MemoryStream} from 'xstream';
-// import {
-//   HistoryInput,
-//   HistoryDriver,
-//   GoBackHistoryInput,
-//   GoForwardHistoryInput,
-//   GoHistoryInput,
-//   PushHistoryInput,
-//   ReplaceHistoryInput,
-// } from './types';
+
 import { Location } from './models';
 
 const CLICK_EVENT =
