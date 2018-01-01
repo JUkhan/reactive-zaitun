@@ -103,7 +103,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
             setComponentToCache(key, model);
         }
     }
-    function fireDestroyEvent(path: string, callback: Function) {
+    function fireDestroyEvent(path: any, callback: Function) {
         const tid = setTimeout(function () {
             callback(path);
             clearTimeout(tid);
@@ -246,7 +246,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
             callback(false);
         }
     }
-    this.destroy = function (path: string, callback: Function) {
+    this.destroy = function (location: any, callback: Function) {
         try {
             if (that.child && typeof active_route.canDeactivate === 'function') {
                 let ref = new active_route.canDeactivate();
@@ -255,17 +255,17 @@ export function ComponentManager(boptions: BootstrapOptions) {
                     if (typeof res === 'object' && res.then) {
                         res.then(function (val: any) {
                             if (val) {
-                                fireDestroyEvent(path, callback);
+                                fireDestroyEvent(location, callback);
                             }
                         });
                     } else if (res) {
-                        fireDestroyEvent(path, callback);
+                        fireDestroyEvent(location, callback);
                     }
                 } else {
-                    fireDestroyEvent(path, callback);
+                    fireDestroyEvent(location, callback);
                 }
             } else {
-                fireDestroyEvent(path, callback);
+                fireDestroyEvent(location, callback);
             }
         } catch (ex) {
             console.log(ex);

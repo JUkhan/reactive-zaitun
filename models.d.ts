@@ -72,6 +72,25 @@ export interface BootstrapOptions {
     activePath?: string;
     devTool?: boolean;
     locationStrategy?: 'hash' | 'history';
+    hashOrHistoryOptions?: BrowserHistoryBuildOptions | HashHistoryBuildOptions;
     baseUrl?: string;
     cacheStrategy?: 'session' | 'local' | 'default';
+}
+export interface BrowserHistoryBuildOptions {
+    basename?: string;
+    forceRefresh?: boolean;
+    keyLength?: number;
+    getUserConfirmation?: Function;
+}
+export interface HashHistoryBuildOptions {
+    basename?: string;
+    hashType?: 'slash' | 'noslash' | 'hashbang';
+    getUserConfirmation?: Function;
+}
+export interface Location {
+    hash?: string;
+    key?: string;
+    pathname?: string;
+    search?: string;
+    state?: string;
 }

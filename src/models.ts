@@ -1,5 +1,6 @@
-import {Router} from './router';
-import {DevTool} from './devTool/devTool';
+import { Router } from './router';
+import { DevTool } from './devTool/devTool';
+
 export interface RouteOptions {
     path: string;
     component?: any;
@@ -7,8 +8,8 @@ export interface RouteOptions {
     canActivate?: Function | any;
     canDeactivate?: Function | any;
     cache?: boolean;
-    effects?:any[],
-    loadEffects?:any[],    
+    effects?: any[],
+    loadEffects?: any[],
     cacheStrategy?: 'session' | 'local' | 'default';
     data?: (params: { [key: string]: any }) => Promise<any> | { [key: string]: any };
     [key: string]: any;
@@ -51,19 +52,41 @@ export interface IComponentManager {
     _testCallback?: (data: any) => void;
 }
 
-export type Dispatch=(action: Action, broadcast?:boolean)=> void;
-export interface ViewObj{
-    model:any;
-    dispatch:Dispatch;
-    router?:Router;
+export type Dispatch = (action: Action, broadcast?: boolean) => void;
+export interface ViewObj {
+    model: any;
+    dispatch: Dispatch;
+    router?: Router;
 }
-export interface BootstrapOptions{
+export interface BootstrapOptions {
     containerDom: string | Element;
     mainComponent: any;
     routes?: RouteOptions[];
     activePath?: string;
     devTool?: boolean;
     locationStrategy?: 'hash' | 'history';
+    hashOrHistoryOptions?: BrowserHistoryBuildOptions | HashHistoryBuildOptions;
     baseUrl?: string;
     cacheStrategy?: 'session' | 'local' | 'default';
+}
+
+export interface BrowserHistoryBuildOptions {
+    basename?: string;
+    forceRefresh?: boolean;
+    keyLength?: number;
+    getUserConfirmation?:Function; 
+}
+
+export interface HashHistoryBuildOptions {
+    basename?: string;
+    hashType?: 'slash' | 'noslash' | 'hashbang';
+    getUserConfirmation?:Function;
+}
+
+export interface Location {
+    hash?: string;
+    key?: string;
+    pathname?: string;
+    search?: string;
+    state?: string;   
 }

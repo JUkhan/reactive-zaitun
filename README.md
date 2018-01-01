@@ -7,9 +7,12 @@ Zaitun uses [Elm Architecture](https://guide.elm-lang.org/architecture/) for com
 ```sh
 git clone https://github.com/JUkhan/zaitun-starter-kit-typescript.git quickstart
 cd quickstart
+npm install
 npm start
 npm run build:prod
 Browse http://localhost:8080
+
+npm run test
 ```
 
 ## The Basic Pattern
@@ -643,7 +646,7 @@ import page1 from './page1';
 function getData(routeParams){
     return new Promise(accept=>{
         setTimeout(()=>{
-            accept((new Array(+routeParams.times))
+            accept((new Array(routeParams.times))
                 .fill('fruit-')
                 .map((fruit,i)=>fruit+i)
             )
@@ -847,15 +850,22 @@ bootstrap({
 });
 
 ```
-### `hash` type Example
-&lt;a class="nav-link" href="#/counter"&gt;Counter&lt;/a&gt;
+### `hash` / `history` type Examples
 
-### `history` type Example
-&lt;a class="nav-link" href="/counter"&gt;Counter&lt;/a&gt;
 
-But For javascript it is same for both
+&lt;a class="nav-link" href="counter"&gt;Counter&lt;/a&gt;
+
+&lt;a class="nav-link" href="/counter/12"&gt;Counter&lt;/a&gt;
+
+&lt;a class="nav-link" href="/counter?foo=bar"&gt;Counter&lt;/a&gt;
+
+
+
 ```javascript
-    router.navigate('count')
+// begining slash is optional
+    router.navigate('count/12') 
+    router.navigate('/count') 
+    router.navigate('/count?foo=bar')
 ```
 ### Cache
 Zaitun provides convenient way to cache your application/page/component

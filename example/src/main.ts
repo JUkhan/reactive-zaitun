@@ -8,7 +8,7 @@ function getData(routeParams: any) {
     return new Promise(accept => {
         setTimeout(() => {
             accept(
-                new Array(+routeParams.times)
+                new Array(routeParams.times)
                     .fill('fruit-')
                     .map((fruit, i) => fruit + i)
             );
@@ -20,6 +20,7 @@ class AuthService {
     canActivate(router: Router) {
         //return new Promise(accept=>accept(true));
         return confirm('are your 18+ ?');
+        //return true;
     }
     canDeactivate(component: Component, router: Router) {
         //return component.canDeactivate();
@@ -57,8 +58,10 @@ const routes: RouteOptions[] = [
 bootstrap({
     containerDom: '#app',
     mainComponent: rootCom,
+    //locationStrategy:'history',
     routes: routes,
     activePath: 'page1',
+    //hashOrHistoryOptions:{hashType:'noslash'},
     devTool: true,
     cacheStrategy:'session'
 });

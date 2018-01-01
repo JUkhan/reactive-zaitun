@@ -14,7 +14,7 @@ function init() {
         menu: [
             { path: 'page1', text: 'Page1' },
             { path: 'page2', text: 'page2' },
-            { path: 'page3/5/My favourite fruits', text: 'page3' },
+            { path: 'page3/7/My favourite fruits?dox=12 sdd&foo=123', text: 'page3' },
             { path: 'counter', text: 'Counter' },
             { path: 'parent', text: 'Parent' }
         ]
@@ -24,13 +24,14 @@ function afterChildRender(dispatch:Dispatch, router: Router) {
     router.effect$
         .addEffect(eff =>
             eff.whenAction(counter.actions.INCREMENT).mergeMap(action => {
-                dispatch({ type: INC_AT, payload: new Date().toUTCString() });
+                dispatch({ type: INC_AT, payload: new Date().toUTCString() });               
                 return empty();
             })
         )
         .addEffect(eff =>
             eff.whenAction(counter.actions.DECREMENT).mergeMap(action => {
                 dispatch({ type: DEC_AT, payload: new Date().toUTCString() });
+                router.navigate('page3/10/i love JS?foo=bar');
                 return empty();
             })
         );
@@ -68,7 +69,8 @@ function update(model, action:Action, router:Router) {
     }
 }
 
-function topMenu(model, router) {
+function topMenu(model, router:Router) {
+
     return h(
         'nav',
         [           
@@ -89,7 +91,7 @@ function topMenu(model, router) {
                             [
                                 h(
                                     'a.nav-link',
-                                    { props: { href: '#/' + nav.path } },
+                                    { props: { href:  nav.path } },
                                     nav.text
                                 )
                             ]
