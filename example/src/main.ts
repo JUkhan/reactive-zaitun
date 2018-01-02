@@ -58,7 +58,7 @@ const routes: RouteOptions[] = [
 bootstrap({
     containerDom: '#app',
     mainComponent: rootCom,
-    //locationStrategy:'history',
+    locationStrategy:'memory',
     routes: routes,
     activePath: 'page1',
     //hashOrHistoryOptions:{hashType:'noslash'},

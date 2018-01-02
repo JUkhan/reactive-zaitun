@@ -10,7 +10,7 @@ import {
     Dispatch,
     Location
 } from './models';
-import { createBrowserHistory, createHashHistory } from 'history';
+import { createBrowserHistory, createHashHistory, createMemoryHistory } from 'history';
 import { captureClicks } from './captureClicks';
 import { h } from "snabbdom/h";
 
@@ -36,13 +36,15 @@ export class Router {
         if (!this.options.locationStrategy) {
             this.options.locationStrategy = 'hash';
         }
-        if (!this.options.hashOrHistoryOptions) {
-            this.options.hashOrHistoryOptions = { hashType: 'noslash' };
+        if (!this.options.hashOrHistoryOrMemoryOptions) {
+            this.options.hashOrHistoryOrMemoryOptions = { hashType: 'noslash' };
         }
 
         this.history = this.options.locationStrategy === 'hash' ?
-            createHashHistory(this.options.hashOrHistoryOptions) :
-            createBrowserHistory(this.options.hashOrHistoryOptions);
+            createHashHistory(this.options.hashOrHistoryOrMemoryOptions) :
+            this.options.locationStrategy === 'history'?
+            createBrowserHistory(this.options.hashOrHistoryOrMemoryOptions):
+            createMemoryHistory(this.options.hashOrHistoryOrMemoryOptions);
 
         /*const unlisten =*/ this.history.listen((location: Location, action) => {
             this.render(this.getRoute(location), location);           
