@@ -8,11 +8,14 @@ import {
     Action,
     IComponentManager,
     Dispatch,
-    Location
+    Location,
+    AppState,
+    TestResult
 } from './models';
 import { createBrowserHistory, createHashHistory, createMemoryHistory } from 'history';
 import { captureClicks } from './captureClicks';
 import { h } from "snabbdom/h";
+
 
 export class Router {
     public activeRoute: ActiveRoute = <ActiveRoute>{};
@@ -69,7 +72,7 @@ export class Router {
         this.CM._isTestEnable = true;
         return this;
     }
-    whenAction(action: Action, callback, broadcast = false) {
+    whenAction(action: Action, callback:(res:TestResult)=>void, broadcast = false) {
         this.CM._testCallback = callback;
         this.dispatch(action, broadcast);
 
@@ -169,7 +172,7 @@ export class Router {
         return routeParams;
     }
 
-    public getAppState() {
+    public getAppState():AppState {
         return this.CM.getAppState();
     }
     public addEffectService(effect_service_class: any) {

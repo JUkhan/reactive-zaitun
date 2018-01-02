@@ -46,12 +46,19 @@ export interface IComponentManager {
     run: (component: Component) => void;
     canActivate: (route: RouteOptions, callback: Function) => void;
     destroy: (path: any, callback: Function) => void;
-    getAppState: () => any;
+    getAppState: () => AppState;
     child: Component;
     _isTestEnable?: boolean;
     _testCallback?: (data: any) => void;
 }
-
+export interface AppState{
+    child:any;
+    [key: string]: any;
+}
+export interface TestResult{
+    action:Action;
+    model:AppState;
+}
 export type Dispatch = (action: Action, broadcast?: boolean) => void;
 export interface ViewObj {
     model: any;

@@ -213,14 +213,14 @@ describe ('route data test', function () {
     routes: routes,
     activePath: 'treeView',
     mainComponent: rootCom (),
-  });
+  }).test();
 
   describe ('navigate to tree component', function () {
     it ('it should have initial data coming from route data property(promise data)', function (
       done
     ) {
     
-      router.test ().
+      router.
         whenAction ({type: 'fake action-just for data test'}, res => {
           assert.deepEqual (res.model.child.data, [
             {name: 'item1', id: 1},

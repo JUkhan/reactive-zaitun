@@ -53,8 +53,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
         }
         validateCom(mcom);
         rootDispatch = router.bindEffect(dispatch);
-        that.router.dispatch = rootDispatch;
-        that._isTestEnable = false;
+        that.router.dispatch = rootDispatch;        
         router.rootDispatch = rootDispatch;
     }
     function validateCom(com: any) {
@@ -77,8 +76,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
             that.child = new component();
             that.child.router = router;
         }
-        validateCom(that.child);
-        that._isTestEnable = false;
+        validateCom(that.child);        
     }
 
     function updateUI() {

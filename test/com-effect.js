@@ -46,26 +46,27 @@ describe ('counter component', function () {
   router = zaitun.bootstrap ({
     containerDom: elm,
     mainComponent: Counter,
-  });
+  }).test();
 
   beforeEach (function () {});
 
   it ('increment', function (done) {
-    router.test ().whenAction ({type: 'inc'}, res => {
+    router.whenAction ({type: 'inc'}, res => {
         assert.equal (res.model.count, 1);
         done ();
       });   
   });
 
   it ('decrement', function (done) {
-    router.test ().whenAction ({type: 'dec'}, res => {
+    router.whenAction ({type: 'dec'}, res => {
+      
         assert.equal (res.model.count, 0);
         done ();
       });    
   });
 
   it ('lazy loading(effect)', function (done) {
-    router.test ().whenAction ({type: 'lazy'}, res => {  console.log('asd: ',res);      
+    router.whenAction ({type: 'lazy'}, res => {  console.log('asd: ',res);      
         if(res.action.type==='lazy'){
           assert.deepEqual (res.model, {count:0, msg:'loaading...'});
         }
