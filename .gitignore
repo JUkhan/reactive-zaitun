@@ -56,3 +56,6 @@ node_modules
 /captureClicks.d.ts
 /captureClicks.js.map
 /captureClicks.js
+/models.d.ts
+/models.js
+/models.js.map
