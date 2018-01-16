@@ -1,11 +1,14 @@
 
 import {Subscription} from 'rxjs/Subscription';
 import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {filter} from 'rxjs/operator/filter';
 import { Action } from './models';
 
-export class Effect extends Subject<Action>{
+export class Effect extends BehaviorSubject<Action>{
+    constructor(){
+        super({type:'initZaitun'});
+    }
     dispatch(action){       
         this.next(action);
     }

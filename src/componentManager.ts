@@ -1,16 +1,13 @@
 import { Router } from './router';
 import { RouteOptions } from './models';
 import { Component, Action, BootstrapOptions } from './models';
+import DomModules from './dom/modules';
+import {div} from './dom';
 
 declare const require: any;
 const snabbdom = require('snabbdom');
-const patch = snabbdom.init([ // Init patch function with chosen modules
-    require('snabbdom/modules/class').default, // makes it easy to toggle classes
-    require('snabbdom/modules/props').default, // for setting properties on DOM elements
-    require('snabbdom/modules/style').default, // handles styling on elements with support for animations
-    require('snabbdom/modules/eventlisteners').default, // attaches event listeners
-]);
-const h = require('snabbdom/h').default; // helper function
+const patch = snabbdom.init(DomModules);
+
 
 export function ComponentManager(boptions: BootstrapOptions) {
     var mcom: Component = <Component>{},
@@ -36,7 +33,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
                 return {};
             },
             view: function (obj) {
-                return h('div.com-loading', 'loading...');
+                return div('.com-loading', 'loading...');
             },
             update: function () {
                 return {};
@@ -53,7 +50,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
         }
         validateCom(mcom);
         rootDispatch = router.bindEffect(dispatch);
-        that.router.dispatch = rootDispatch;        
+        that.router.dispatch = rootDispatch;
         router.rootDispatch = rootDispatch;
     }
     function validateCom(com: any) {
@@ -76,7 +73,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
             that.child = new component();
             that.child.router = router;
         }
-        validateCom(that.child);        
+        validateCom(that.child);
     }
 
     function updateUI() {
@@ -113,8 +110,8 @@ export function ComponentManager(boptions: BootstrapOptions) {
             that.child.onDestroy();
         }
 
-    }   
-    
+    }
+
     function setComponentToCache(key: any, state: any) {
 
         if (active_route.cache) {
@@ -173,18 +170,23 @@ export function ComponentManager(boptions: BootstrapOptions) {
             runChildHelper(com.default, route);
         });
     }
+    function getChildModel(component, key, params) {
+        let data;
+        if (key) {
+            data = getCacheData(key);
+            if (data && typeof component.onCache === 'function') {
+                data = component.onCache(data);
+            }
+        }
+        else { data = component.init(that.router.dispatch, params, that.router); }
+        return data;
+    }
     function runChildHelper(component: Component, route: RouteOptions) {
         active_route = route;
         params = route.routeParams;
         key = route.cache ? route.navPath : '';
-        initChildComponent(component, that.router);
-        if (key) {            
-            model.child =  getCacheData(key) ||
-                that.child.init(that.router.dispatch, route.routeParams, that.router);
-        } else {
-            model.child = that.child.init(that.router.dispatch, route.routeParams, that.router);
-        }
-
+        initChildComponent(component, that.router);        
+        model.child =getChildModel(that.child, key, route.routeParams)
         updateUI();
         if (typeof that.child.afterViewRender === 'function') {
             that.child.afterViewRender(that.router.dispatch, that.router, model);
@@ -213,9 +215,17 @@ export function ComponentManager(boptions: BootstrapOptions) {
             runChildHelper(route.component, route);
         }
     }
+    function getRootModel(component) {
+        let data = getCacheData(root_com_cache_id);
+        if (data && typeof component.onCache === 'function') {
+            data = component.onCache(data);
+        }
+        else { data = component.init(rootDispatch, that.router); }
+        return data;
+    }
     this.run = function (component: any) {
         initMainComponent(component, that.router);
-        model =getCacheData(root_com_cache_id)|| mcom.init(rootDispatch, that.router);
+        model = getRootModel(component);
         updateUI();
         if (typeof mcom.afterViewRender === 'function') {
             mcom.afterViewRender(rootDispatch, that.router, model);

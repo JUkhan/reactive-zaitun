@@ -36,13 +36,28 @@ gulp.task('bundle:devTool:devTool', function() {
   return standalone('devTool', './devTool/devTool.js')
 })
 
+gulp.task('bundle:dom:hyperscript-helpers', function() {
+  return standalone('hyperscript-helpers', './dom/hyperscript-helpers.js')
+})
+
+gulp.task('bundle:dom:modules', function() {
+  return standalone('modules', './dom/modules.js')
+})
+
+gulp.task('bundle:dom:index', function() {
+  return standalone('hyperscript-helpers', './dom/index.js')
+})
+
 gulp.task('bundle', [
   'bundle:zaitun:bootstrap',
   'bundle:zaitun:componentManager',
   'bundle:zaitun:effect',
   'bundle:zaitun:router',
   'bundle:zaitun:index',
-  'bundle:devTool:devTool'  
+  'bundle:devTool:devTool',
+  'bundle:dom:hyperscript-helpers',
+  'bundle:dom:modules',
+  'bundle:dom:index' 
 ])
 
 gulp.task('compress', ['bundle'], function() {
