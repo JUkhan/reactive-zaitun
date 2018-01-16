@@ -60,7 +60,8 @@ class Component{
 The counter component is defined in its own module ‘counter.ts’
 ```javascript
 
-import {h, Action, ViewObj} from 'zaitun';
+import {Action, ViewObj} from 'zaitun';
+import { span, button } from 'zaitun/dom';
 
 const INCREMENT='inc';
 const DECREMENT='dec';
@@ -70,17 +71,25 @@ function init() {
 }
 function view({ model, dispatch }:ViewObj) {
 
-    return h('span', [
-        h('button', { on: { click: e => dispatch({ type: INCREMENT }) } }, '+'),       
-        h('button', { on: { click: e => dispatch({ type: DECREMENT }) } }, '-'),
-        h('span', model.msg || model.count)
+    return span([
+        button({
+            on: {
+                click: e => dispatch({ type: INCREMENT })
+            }
+        }, '+'),        
+        button({
+            on: {
+                click: e => dispatch({ type: DECREMENT })
+            }
+        },'-'),
+        span(model.count)
     ]);
 }
 function update(model: any, action: Action) {
 
     switch (action.type) {
-        case INCREMENT: return { count: model.count + 1, msg: ''};
-        case DECREMENT: return { count: model.count - 1, msg: ''};            
+        case INCREMENT: return { count: model.count + 1};
+        case DECREMENT: return { count: model.count - 1};            
         default:return model;
     }
 }
@@ -135,7 +144,7 @@ We can explain this in a short way like bellow:
 ## Note
 The view/update are both pure functions, they have no dependency on any external environment besides their input. The counter component itself doesn’t hold any state or variable, it just describes how to construct a view from a given state, and how to update a given state with a given action. Thanks to its purity, the counter component can be easily plugged into any environment that is able to supply it with its dependencies : a state  and an action.
 
-## Adding side effects against a dispatched action
+## Adding side effects to the dispatched actions
 
 There are several of ways to integrate effects in our application. One of them is to add effects into the `afterViewRender` life cycle hook method
 
@@ -164,11 +173,23 @@ Here we go, change the `counter` component's `view` a bit
 ```javascript
 function view({ model, dispatch }:ViewObj) {
 
-    return h('div', [
-        h('button', { on: { click: e => dispatch({ type: INCREMENT }) } }, '+'),
-        h('button', { on: { click: e => dispatch({ type: LAZY }, true) } }, '+ (Async)'),
-        h('button', { on: { click: e => dispatch({ type: DECREMENT }) } }, '-'),
-        h('span', model.msg || model.count)
+   return span([
+        button({
+            on: {
+                click: e => dispatch({ type: INCREMENT })
+            }
+        }, '+'),
+        button({
+            on: {
+                click: e => dispatch({ type: LAZY }, true)
+            }
+        }, '+ (Async)'),
+        button({
+            on: {
+                click: e => dispatch({ type: DECREMENT })
+            }
+        },'-'),
+        span(model.msg || model.count)
     ]);
 }
 
@@ -195,7 +216,8 @@ If we bring all the updates together our `counter` component looks like:
 
 ```javascript
 
-import {h, Action, Router, ViewObj} from 'zaitun';
+import {Action, Router, ViewObj} from 'zaitun';
+import { span, button } from 'zaitun/dom';
 
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/map';
@@ -220,11 +242,23 @@ function afterViewRender(dispatch, router: Router, model?) {
 
 function view({ model, dispatch }:ViewObj) {
 
-    return h('span', [
-        h('button', { on: { click: e => dispatch({ type: INCREMENT }) } }, '+'),
-        h('button', { on: { click: e => dispatch({ type: LAZY }, true) } }, '+ (Async)'),
-        h('button', { on: { click: e => dispatch({ type: DECREMENT }) } }, '-'),
-        h('span', model.msg || model.count)
+   return span([
+        button({
+            on: {
+                click: e => dispatch({ type: INCREMENT })
+            }
+        }, '+'),
+        button({
+            on: {
+                click: e => dispatch({ type: LAZY }, true)
+            }
+        }, '+ (Async)'),
+        button({
+            on: {
+                click: e => dispatch({ type: DECREMENT })
+            }
+        },'-'),
+        span(model.msg || model.count)
     ]);
 }
 function update(model: any, action: Action) {
@@ -332,7 +366,9 @@ Now we will develop a parent component such a way where our `Counter` component 
 The `Parent` component is defined in its own module `parent.ts`
 ```javascript
 
-import { Router, h, Action, ViewObj } from 'zaitun';
+import { Router,Action, ViewObj } from 'zaitun';
+import {div, h3} from 'zaitun/dom';
+
 import Counter from './counter';
 
 const COUNTER_UPDATE='counterUpdate';
@@ -344,15 +380,17 @@ function init(){
 }
 
 function view({model, dispatch, router}:ViewObj){   
-    return h('div',[
-        h('h3', 'Parent Component'),
-        h('div', model.incAt?'Last incremented at: '+model.incAt:''),
-        h('div', model.decAt?'Last decremented at: '+model.decAt:''),
+    return div([
+        h3('Parent Component'),
+        div(model.incAt ? 'Last incremented at: ' + model.incAt : ''),
+        div(model.decAt ? 'Last decremented at: ' + model.decAt : ''),
         Counter.view({
-                model:model.counter,
-                dispatch: action=>dispatch({type:COUNTER_UPDATE, payload:action})
-            })
-    ])
+            model: model.counter,
+            dispatch: action =>
+                dispatch({ type: COUNTER_UPDATE, payload: action })
+            
+        })
+    ]);
 }
 
 function update(model, action:Action){
@@ -390,15 +428,17 @@ Ans: Please look at the `Parent` component's `view` function bellow --where we c
 ```javascript
 
 function view({model, dispatch, router}:ViewObj){   
-    return h('div',[
-        h('h3', 'Parent Component'),
-        h('div', model.incAt?'Last incremented at: '+model.incAt:''),
-        h('div', model.decAt?'Last decremented at: '+model.decAt:''),
+    return div([
+        h3('Parent Component'),
+        div(model.incAt ? 'Last incremented at: ' + model.incAt : ''),
+        div(model.decAt ? 'Last decremented at: ' + model.decAt : ''),
         Counter.view({
-                model:model.counter,
-                dispatch: action=>dispatch({type:COUNTER_UPDATE, payload:action})
-            })
-    ])
+            model: model.counter,
+            dispatch: action =>
+                dispatch({ type: COUNTER_UPDATE, payload: action })
+            
+        })
+    ]);
 }
 
 ```
@@ -407,15 +447,17 @@ This is the resolved version of the `Parent` component't view function
 ```javascript
 
 function view({model, dispatch, router}:ViewObj){   
-    return h('div',[
-        h('h3', 'Parent Component'),
-        h('div', model.incAt?'Last incremented at: '+model.incAt:''),
-        h('div', model.decAt?'Last decremented at: '+model.decAt:''),
+    return div([
+        h3('Parent Component'),
+        div(model.incAt ? 'Last incremented at: ' + model.incAt : ''),
+        div(model.decAt ? 'Last decremented at: ' + model.decAt : ''),
         Counter.view({
-                model:model.counter,
-                dispatch: router.bindEffect(action=>dispatch({type:COUNTER_UPDATE, payload:action}))
-            })
-    ])
+            model: model.counter,
+            dispatch: router.bindEffect(action =>
+                dispatch({ type: COUNTER_UPDATE, payload: action })
+            )
+        })
+    ]);
 }
 
 ```
@@ -423,12 +465,12 @@ now the `+(async)` function is working as expected
 
 `Last incremented at:` and `Last decremented at` times are still remained
 
-Can you think how to get these times ?
-May be you thought that we need to add two more effects one for `INCREMENT` and another for `DECREMENT` actions.
+
+May be you are thinking that we need to add two more effects one for `INCREMENT` and another for `DECREMENT` actions.
 
 Yep, your thinking is right.You are awesome:)
 
-Let's go to the `counterEffect.ts` and write our thought there:
+Let's go to the `counterEffect.ts` and add the effects:
 
 ```javascript
 
@@ -451,13 +493,13 @@ export class CounterEffect{
         ).addEffect(eff=>
             eff.whenAction(counter.actions.INCREMENT)
              .mergeMap(action=>{
-                router.dispatch({type:parent.actions.INC_AT, payload:new Date().toUTCString()});
+                router.dispatch({type:parent.actions.INC_AT, payload:new Date().toString()});
                 return empty();
              })
         ).addEffect(eff=>
             eff.whenAction(counter.actions.DECREMENT)
              .mergeMap(action=>{
-                router.dispatch({type:parent.actions.DEC_AT, payload:new Date().toUTCString()});
+                router.dispatch({type:parent.actions.DEC_AT, payload:new Date().toString()});
                 return empty();
              })
         )  
@@ -478,11 +520,23 @@ Yes of course we need to set the the second params of the `dispathch` function a
 ```javascript
 function view({ model, dispatch }:ViewObj) {
 
-    return h('div', [
-        h('button', { on: { click: e => dispatch({ type: INCREMENT },true) } }, '+'),
-        h('button', { on: { click: e => dispatch({ type: LAZY }, true) } }, '+ (Async)'),
-        h('button', { on: { click: e => dispatch({ type: DECREMENT }, true) } }, '-'),
-        h('span', model.msg || model.count)
+    return span([
+        button({
+            on: {
+                click: e => dispatch({ type: INCREMENT }, true)
+            }
+        }, '+'),
+        button({
+            on: {
+                click: e => dispatch({ type: LAZY }, true)
+            }
+        }, '+ (Async)'),
+        button({
+            on: {
+                click: e => dispatch({ type: DECREMENT }, true)
+            }
+        },'-'),
+        span(model.msg || model.count)
     ]);
 }
 
@@ -508,7 +562,8 @@ The RootComponent is defined in its own module `rootComponent.ts`
 
 ```javascript
 
-import {Router, h, ViewObj} from 'zaitun';
+import {Router, ViewObj} from 'zaitun';
+import {div, h3, nav, a, ul, li} from 'zaitun/dom';
 const CHILD = Symbol('CHILD');
 
 function init() {
@@ -524,11 +579,17 @@ function init() {
 }
 
 function view({ model, dispatch, router }:ViewObj) {
-    return h('div', [
-        topMenu(model.menu, router),  
-        h('h3','Root Component'),     
-        h('div', router.viewChild({ model: model.child, router, dispatch: action => dispatch({ type: CHILD, payload: action }) }))
-    ])
+    return div( [
+        topMenu(model.menu, router),
+        h3( 'Root Component'),        
+        div(
+            router.viewChild({
+                model: model.child,
+                router,
+                dispatch: action => dispatch({ type: CHILD, payload: action })
+            })
+        )
+    ]);
 }
 
 function update(model, action, router:Router) {
@@ -541,14 +602,17 @@ function update(model, action, router:Router) {
 }
 
 function topMenu(model, router) {
-    return h('nav.navbar.navbar-toggleable-md.navbar-inverse.fixed-top.bg-inverse', [
-        h('a.navbar-brand', { props: { href: "#/counter" } }, 'Zaitun'),
-        h('div.collapse.navbar-collapse#navbarCollapse',
-            h('ul.navbar-nav.mr-auto',
-                model.map(nav => h('li.nav-item', { class: { active: router.activeRoute.navPath === nav.path } }, [h('a.nav-link', { props: { href: '#/' + nav.path } }, nav.text)]))
-            )
-        )
-    ])
+    return nav('.navbar.navbar-expand-sm.bg-dark navbar-dark',
+        [ 
+            a('.navbar-brand', { props: { href: '/counter' } }, 'Zaitun'),
+            ul('.navbar-nav',model.map(nav =>li('.nav-item',{
+                                class: {active:router.activeRoute.navPath === nav.path }
+                            },
+                            a('.nav-link',{ props: { href:  nav.path } }, nav.text )                            
+                        )
+                    )
+                )
+        ]);  
 }
 
 export default { init, view, update}
@@ -594,10 +658,10 @@ Now we develop `page2` component as:
 
 ```javascript
 
-import { h } from 'zaitun';
+import {h3} from 'zaitun/dom';
 
 function view(){
-    return h('h3', 'Page-2')
+    return h3('Page-2')
 }
 
 export default {view}
@@ -671,7 +735,8 @@ const routes:RouteOptions[]=[
 and develop the `page3` component like bellow:
 
 ```javascript
-import {Router, h} from 'zaitun';
+import {Router} from 'zaitun';
+import {div, ol, li} from 'zaitun/dom';
 
 function init(dispatch, routeParams, router:Router) {   
     return {
@@ -682,9 +747,9 @@ function init(dispatch, routeParams, router:Router) {
 
 function view({ model, dispatch, router }) {
 
-    return h('div', [
-        h('div', model.title),
-        h('ol',model.data.map(fruit=>h('li', fruit)))
+    return div([
+        div(model.title),
+        ol(model.data.map(fruit=>li(fruit)))
     ])
 }
 
@@ -738,7 +803,9 @@ As we have `RootComponent` and multiple pages. We can move the `last incremented
 
  `Rootcomponent`  should look like:
 ```javascript
-import {Router, h, ViewObj, Dispatch} from 'zaitun';
+import {Router, ViewObj, Dispatch} from 'zaitun';
+import {div, h3, nav, a, ul, li} from 'zaitun/dom';
+
 import 'rxjs/add/operator/mergeMap';
 import {empty} from 'rxjs/observable/empty';
 import counter from './counter';
@@ -763,25 +830,31 @@ function afterChildRender(dispatch:Dispatch, router:Router){
     router.effect$.addEffect(eff=>
             eff.whenAction(counter.actions.INCREMENT)
              .mergeMap(action=>{
-                dispatch({type:INC_AT, payload:new Date().toUTCString()});
+                dispatch({type:INC_AT, payload:new Date().toString()});
                 return empty();
              })
         ).addEffect(eff=>
             eff.whenAction(counter.actions.DECREMENT)
              .mergeMap(action=>{
-                dispatch({type:DEC_AT, payload:new Date().toUTCString()});
+                dispatch({type:DEC_AT, payload:new Date().toString()});
                 return empty();
              })
         )  
 }
 function view({ model, dispatch, router }:ViewObj) {
-    return h('div', [
-        topMenu(model.menu, router),  
-        h('h3','Root Component'), 
-         h('div', model.incAt?'Last incremented at: '+model.incAt:''),
-        h('div', model.decAt?'Last decremented at: '+model.decAt:''),    
-        h('div', router.viewChild({ model: model.child, router, dispatch: action => dispatch({ type: CHILD, payload: action }) }))
-    ])
+    return div( [
+        topMenu(model.menu, router),
+        h3( 'Root Component'),
+        div(model.incAt ? 'Last incremented at: ' + model.incAt : ''),
+        div( model.decAt ? 'Last decremented at: ' + model.decAt : ''),
+        div(
+            router.viewChild({
+                model: model.child,
+                router,
+                dispatch: action => dispatch({ type: CHILD, payload: action })
+            })
+        )
+    ]);
 }
 
 function update(model, action:Action, router:Router) {
@@ -795,14 +868,17 @@ function update(model, action:Action, router:Router) {
 }
 
 function topMenu(model, router) {
-    return h('nav.navbar.navbar-toggleable-md.navbar-inverse.fixed-top.bg-inverse', [
-        h('a.navbar-brand', { props: { href: "#/counter" } }, 'Zaitun'),
-        h('div.collapse.navbar-collapse#navbarCollapse',
-            h('ul.navbar-nav.mr-auto',
-                model.map(nav => h('li.nav-item', { class: { active: router.activeRoute.navPath === nav.path } }, [h('a.nav-link', { props: { href: '#/' + nav.path } }, nav.text)]))
-            )
-        )
-    ])
+    return nav('.navbar.navbar-expand-sm.bg-dark navbar-dark',
+        [ 
+            a('.navbar-brand', { props: { href: '/counter' } }, 'Zaitun'),
+            ul('.navbar-nav',model.map(nav =>li('.nav-item',{
+                                class: {active:router.activeRoute.navPath === nav.path }
+                            },
+                            a('.nav-link',{ props: { href:  nav.path } }, nav.text )                            
+                        )
+                    )
+                )
+        ]);
 }
 
 export default { init, view, update, afterChildRender}
@@ -872,7 +948,9 @@ Zaitun provides convenient way to cache your application/page/component
 
 You may set the cacheStrategy:'local'|'session'|'default' into the bootstrap configuration options
 
-Caching should not be applied if you set the cache proerty true of the route configuration. it also has another two caching properties (cacheStrategy:string,cacheUpdate_perStateChange:bool) 
+Caching should not be applied if you set the cache proerty true of the route configuration. Route configuration also has `cacheStrategy` property.
+
+Component should have a `onCache(model:any):model` life cycle hook method that should be fired if the component configuard as cacheable, thats provides convinient way to update the model in your cases.
 
 ## onDestroy
 

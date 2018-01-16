@@ -225,7 +225,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
     }
     this.run = function (component: any) {
         initMainComponent(component, that.router);
-        model = getRootModel(component);
+        model = getRootModel(mcom);
         updateUI();
         if (typeof mcom.afterViewRender === 'function') {
             mcom.afterViewRender(rootDispatch, that.router, model);
