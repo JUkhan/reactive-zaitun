@@ -1,6 +1,6 @@
 {
   "name": "zaitun",
-  "version": "1.6.11",
+  "version": "1.6.12",
   "description": "a functional reactive framework for front-end application development either in JavaScript or a language like TypeScript that compiles to JavaScript.",
   "main": "index.js",
   "module": "es/index.js",
@@ -47,6 +47,12 @@
     "type": "git",
     "url": "git+https://github.com/JUkhan/reactive-zaitun.git"
   },
+  "contributors": [
+    {
+      "name": "Jasim Uddin Khan",
+      "email": "jasim.uddin.khan@gmail.com"
+    }
+  ],
   "keywords": [
     "virtual",
     "dom",
@@ -55,8 +61,7 @@
     "rxjs",
     "ngrx",
     "redux",
-    "react",
-    "angular",
+    "functional",
     "performance"
   ],
   "author": "Jasim Uddin Khan",
