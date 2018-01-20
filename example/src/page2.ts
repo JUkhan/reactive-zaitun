@@ -1,4 +1,4 @@
-import { ViewObj, Action, h } from '../../src/index';
+import { ViewObj, Action, h, Router } from '../../src/index';
 
 
 import { Observable } from 'rxjs/Observable';
@@ -59,12 +59,12 @@ function moveDown(elm, pixels) {
             elm.style.transform = `translate3d(0, ${frame}px, 0)`;
         })
 }
-function afterViewRender() {
+function afterViewRender(router:Router) {
     //const elm:any=document.querySelector('#box');
     //moveBall(duration(1500)).subscribe();
     //moveDown(elm)(duration(1500)).subscribe();
     //duration(2000).let(moveDown(elm)).subscribe();
-
+    
     const balls = document.querySelectorAll('.ball');
     Observable.from(balls)
         .concatMap((ball, i) =>

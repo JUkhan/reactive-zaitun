@@ -151,7 +151,7 @@ There are several of ways to integrate effects in our application. One of them i
 ```javascript
 function afterViewRender(dispatch:Dispatch, router: Router, model) {
    
-        router.effect$
+        router
         .addEffect(effect$ =>
             effect$.whenAction(LAZY)
                 .delay(1000)
@@ -160,7 +160,7 @@ function afterViewRender(dispatch:Dispatch, router: Router, model) {
         
         /*
         you can make chain call of addEffect
-            router.effect$
+            router
             .addEffect(...)
             .addEffect(...)
         */
@@ -231,7 +231,7 @@ function init() {
 }
 
 function afterViewRender(dispatch, router: Router, model?) {
-   router.effect$
+   router
         .addEffect(effect$ =>
             effect$.whenAction(LAZY)
                 .delay(1000)
@@ -279,14 +279,14 @@ Also we can define a separate effect file (eg. `counterEffect.ts`)
 
 ```javascript
 
-import { Router, EffectSubscription } from 'zaitun';
+import { Router } from 'zaitun';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/map';
 import counter from './counter';
 
 export class CounterEffect{
-    constructor(es:EffectSubscription, router:Router){       
-        es.addEffect(effect$ =>
+    constructor(router:Router){       
+        router.addEffect(effect$ =>
             effect$.whenAction(counter.actions.LAZY)
                 .delay(1000)
                 .map(action => ({ ...action, type: counter.actions.INCREMENT }))
@@ -474,7 +474,7 @@ Let's go to the `counterEffect.ts` and add the effects:
 
 ```javascript
 
-import { Router, EffectSubscription } from 'zaitun';
+import { Router } from 'zaitun';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
@@ -484,8 +484,8 @@ import counter from './counter';
 import parent from './parent';
 
 export class CounterEffect{
-    constructor(es:EffectSubscription, router:Router){       
-        es
+    constructor(router:Router){       
+        router
         .addEffect(effect$ =>
             effect$.whenAction(counter.actions.LAZY)
                 .delay(1000)
@@ -827,19 +827,21 @@ function init() {
     };
 }
 function afterChildRender(dispatch:Dispatch, router:Router){
-    router.effect$.addEffect(eff=>
-            eff.whenAction(counter.actions.INCREMENT)
-             .mergeMap(action=>{
-                dispatch({type:INC_AT, payload:new Date().toString()});
-                return empty();
-             })
-        ).addEffect(eff=>
-            eff.whenAction(counter.actions.DECREMENT)
-             .mergeMap(action=>{
-                dispatch({type:DEC_AT, payload:new Date().toString()});
-                return empty();
-             })
-        )  
+    router
+    .addEffect(eff=>
+        eff.whenAction(counter.actions.INCREMENT)
+            .mergeMap(action=>{
+            dispatch({type:INC_AT, payload:new Date().toString()});
+            return empty();
+            })
+    )
+    .addEffect(eff=>
+        eff.whenAction(counter.actions.DECREMENT)
+            .mergeMap(action=>{
+            dispatch({type:DEC_AT, payload:new Date().toString()});
+            return empty();
+            })
+    )  
 }
 function view({ model, dispatch, router }:ViewObj) {
     return div( [
@@ -950,12 +952,167 @@ You may set the cacheStrategy:'local'|'session'|'default' into the bootstrap con
 
 Caching should not be applied if you set the cache proerty true of the route configuration. Route configuration also has `cacheStrategy` property.
 
-Component should have a `onCache(model:any):model` life cycle hook method that should be fired if the component configuard as cacheable, thats provides convinient way to update the model in your cases.
+Component should have a `onCache(model:any):model` life cycle hook method that should be fired if the component configuard as cacheable, that provides convinient way to update the cached model in your cases.
 
 ## onDestroy
 
 Component should have a `onDestroy` life cycle hook method that should be fired on the time of navigation changing 
 
 
+## Testing
+Zaitun provides an easy way to test your application. Zaitun only monitors to the action dispatching and the effects chained to the actions. It exposed a single method `whenAction(action, callback)` to test your entire application. You will receive all the result included effects( if any ) by this callback function.
+
+You will find a test folder into the quickstart application- it's up and running all the test. so far, we developed through out the tutorial
+
+* One thing you should remember to set `locationStrategy:"memory"` for testing
+
+Example:
+
+runApp.ts
 
 
+
+```javascript
+import { bootstrap, RouteOptions } from 'zaitun';
+
+import rootCom from '../src/rootComponent';
+import page1 from '../src/page1';
+import page2 from '../src/page2';
+import page3 from '../src/page3';
+import counterEffect from '../src/counterEffect';
+import counter from '../src/counter';
+import parent from '../src/parent';
+
+function getData(routeParams: any) {
+    console.log(routeParams);
+    return new Promise(accept => {
+        setTimeout(() => {
+            accept(
+                new Array(routeParams.times)
+                    .fill('fruit-')
+                    .map((fruit, i) => fruit + i)
+            );
+        }, 1000);
+    });
+}
+
+const routes: RouteOptions[] = [
+    { path: 'page1', component: page1 },
+    {
+       path: 'page2',       
+       component:page2
+    },
+    {
+        path: 'page3/:times/:title',
+        data: getData,
+        component:page3
+    },
+    {
+        path: 'counter',               
+        effects: [counterEffect],
+        component:counter
+    },
+    {
+        path: 'parent',       
+        effects: [counterEffect],
+        component: parent
+    }
+];
+
+var run=(navName)=>{    
+    return bootstrap({
+        containerDom: document.createElement('div'),
+        mainComponent: rootCom,
+        routes: routes,
+        activePath: navName,
+        locationStrategy:'memory',
+        devTool: false
+    }).test();
+}
+
+export default run;
+
+```
+
+counter.spec.ts
+
+```javascript
+
+import {assert} from 'chai';
+import {Router, TestResult} from 'zaitun';
+import counter from '../src/counter';
+import navigate from './runApp';
+
+describe('counter test',()=>{
+    const router:Router=navigate('counter');    
+    it('increment', ()=>{
+        const model=router.getAppState().child;
+        router.whenAction({type:counter.actions.INCREMENT}, (res:TestResult)=>{
+            assert.equal(model.count+1,res.model.child.count);            
+        })
+       
+    })
+
+    it('decrement', ()=>{
+        const model=router.getAppState().child;
+        router.whenAction({type:counter.actions.DECREMENT}, (res:TestResult)=>{
+            assert.equal(model.count-1,res.model.child.count);            
+        })
+       
+    })
+
+    it('increment effect(registered in rootComponent)', (done)=>{
+        const model=router.getAppState();
+        router.whenAction({type:counter.actions.INCREMENT}, (res:TestResult)=>{
+            
+            if(res.action.payload.type===counter.actions.INCREMENT){
+                assert.equal(model.child.count+1,res.model.child.count); 
+            }
+            else if(res.action.type==='incAt'){
+                assert.notEqual(model.incAt,res.model.incAt);
+                done(); 
+            }
+                      
+        }, true)
+       
+    })
+
+    it('decrement effect(registered in rootComponent)', (done)=>{
+        const model=router.getAppState();
+        router.whenAction({type:counter.actions.DECREMENT}, (res:TestResult)=>{
+            
+            if(res.action.payload.type===counter.actions.DECREMENT){
+                assert.equal(model.child.count-1,res.model.child.count); 
+            }
+            else if(res.action.type==='decAt'){
+                assert.notEqual(model.decAt,res.model.decAt);
+                done(); 
+            }
+                      
+        }, true)
+       
+    })
+
+    it('lazy increment effect(registered in rootComponent and CounterEffect service)', (done)=>{
+        let model=router.getAppState();
+        
+        router.whenAction({type:counter.actions.LAZY}, (res:TestResult)=>{          
+            if(res.action.payload.type===counter.actions.LAZY){
+                assert.equal(res.model.child.msg,'loading...');  
+            }
+            else if(res.action.payload.type===counter.actions.INCREMENT){
+                assert.equal(model.child.count+1,res.model.child.count); 
+            }           
+            else if(res.action.type==='incAt'){
+                assert.notEqual(model.incAt,res.model.incAt);
+                done(); 
+            }
+                      
+        }, true)
+       
+    })
+})
+
+```
+
+* If you do find any bugs feel free to open an issue [here](https://github.com/JUkhan/reactive-zaitun/issues)

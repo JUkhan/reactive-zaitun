@@ -21,7 +21,7 @@ function init() {
     };
 }
 function afterChildRender(dispatch:Dispatch, router: Router) {
-    router.effect$
+    router
         .addEffect(eff =>
             eff.whenAction(counter.actions.INCREMENT).mergeMap(action => {
                 dispatch({ type: INC_AT, payload: new Date().toUTCString() });               
@@ -30,8 +30,7 @@ function afterChildRender(dispatch:Dispatch, router: Router) {
         )
         .addEffect(eff =>
             eff.whenAction(counter.actions.DECREMENT).mergeMap(action => {
-                dispatch({ type: DEC_AT, payload: new Date().toUTCString() });
-                router.navigate('page3/10/i love JS?foo=bar');
+                dispatch({ type: DEC_AT, payload: new Date().toUTCString() });                
                 return empty();
             })
         );

@@ -15,6 +15,7 @@ import {
 import { createBrowserHistory, createHashHistory, createMemoryHistory } from 'history';
 import { captureClicks } from './captureClicks';
 import { h } from "snabbdom/h";
+import { Observable } from "rxjs/Observable";
 
 
 export class Router {
@@ -175,8 +176,11 @@ export class Router {
     public getAppState():AppState {
         return this.CM.getAppState();
     }
-    public addEffectService(effect_service_class: any) {
-        new effect_service_class(this.effect$, this);
+    public addEffect(effectCallback:(effect$:Effect)=>Observable<Action>){
+        return this.effect$.addEffect(effectCallback);       
+    }
+    public addEffectService(effect_service_class: any) {        
+        new effect_service_class(this);
         return this;
     }
     private unsubscribeAllEffect() {
@@ -215,7 +219,7 @@ export class Router {
             brodcast && this._subject.dispatch(action);
         }
     }
-    public effect$: EffectSubscription;
+    private effect$: EffectSubscription;
     private _subject: Effect;
 }
 

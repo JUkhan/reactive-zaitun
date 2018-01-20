@@ -10,7 +10,7 @@ class Counter {
   }
   afterViewRender (dispatch, router) {  
     
-    router.effect$.addEffect (effect$ =>
+    router.addEffect (effect$ =>
       effect$
         .whenAction ('lazy')        
         .map (action =>{
