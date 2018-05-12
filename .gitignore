@@ -30,3 +30,4 @@ node_modules
 *.swp
 
 # Generated JavaScript
+package-lock.json
