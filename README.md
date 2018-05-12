@@ -297,7 +297,7 @@ function update(model: any, action: Action) {
 export default { init, view, update, afterViewRender, actions:{INCREMENT, DECREMENT, LAZY } }
 
 ```
-## You may find running code here [Async Example](https://stackblitz.com/edit/zaitunapp?embed=1&file=counter.ts) 
+## You may run the code from here [Effect Example](https://stackblitz.com/edit/zaitunapp?embed=1&file=counter.ts) 
 
 When you click on the `+(async)` button(`dispatch LAZY action`) it will display 'loading...' message and after 1000 milisecond effect should dispatch a INCREMENT action as a result incremented counter value should be displayed.
 
