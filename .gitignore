@@ -31,3 +31,4 @@ node_modules
 
 # Generated JavaScript
 package-lock.json
+/package-lock.json

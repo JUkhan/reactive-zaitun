@@ -299,7 +299,7 @@ export default { init, view, update, afterViewRender, actions:{INCREMENT, DECREM
 ```
 ## You may find running code here [Async Example](https://stackblitz.com/edit/zaitunapp?embed=1&file=counter.ts) 
 
-When we click on the `+(async)` button it will display 'loading...' message for a while and then a incremented counter value should be displayed.
+When you click on the `+(async)` button(`dispatch LAZY action`) it will display 'loading...' message and after 1000 milisecond effect should dispatch a INCREMENT action as a result incremented counter value should be displayed.
 
 Also we can define a separate effect file (eg. `counterEffect.ts`)
 
