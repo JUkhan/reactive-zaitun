@@ -14,7 +14,7 @@ module.exports = {
   },
   entry: {
     app: './main.ts',
-    appStyles: [/*'./styles/devTool.scss',*/ './styles/styles.scss','./styles/ui.scss'],
+    appStyles: ['./styles/styles.scss','./styles/ui.scss'],
     //vendor: [
       //'jquery',      
       //'materialize-css',

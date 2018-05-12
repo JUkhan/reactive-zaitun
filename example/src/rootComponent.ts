@@ -56,7 +56,7 @@ function afterChildRender(dispatch: Dispatch, router: Router) {
             eff.whenAction(counter.actions.INCREMENT)
                 .pipe(
                     mergeMap(action => {
-                        dispatch({ type: INC_AT, payload: new Date().toString() });
+                        dispatch({ type: INC_AT, payload: new Date().toLocaleTimeString() });
                         return empty();
                     }))
         )
@@ -64,7 +64,7 @@ function afterChildRender(dispatch: Dispatch, router: Router) {
             eff.whenAction(counter.actions.DECREMENT)
                 .pipe(
                     mergeMap(action => {
-                        dispatch({ type: DEC_AT, payload: new Date().toString() });
+                        dispatch({ type: DEC_AT, payload: new Date().toLocaleTimeString() });
                         return empty();
                     }))
         );
