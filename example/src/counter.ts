@@ -1,4 +1,5 @@
-import { h, Action, ViewObj} from '../../src/index';
+import { Action, ViewObj } from 'zaitun';
+import { span, button } from 'zaitun/dom';
 
 const INCREMENT = 'inc';
 const DECREMENT = 'dec';
@@ -9,23 +10,23 @@ function init() {
 }
 
 function view({ model, dispatch }: ViewObj) {
-    return h('span', [
-        h(
-            'button',
-            { on: { click: e => dispatch({ type: INCREMENT }, true) } },
-            '+'
-        ),
-        h(
-            'button',
-            { on: { click: e => dispatch({ type: LAZY }, true) } },
-            '+ (Async)'
-        ),
-        h(
-            'button',
-            { on: { click: e => dispatch({ type: DECREMENT }, true) } },
-            '-'
-        ),
-        h('span', model.msg || model.count)
+    return span([
+        button({
+            on: {
+                click: e => dispatch({ type: INCREMENT }, true)
+            }
+        }, '+'),
+        button({
+            on: {
+                click: e => dispatch({ type: LAZY }, true)
+            }
+        }, '+ (Async)'),
+        button({
+            on: {
+                click: e => dispatch({ type: DECREMENT }, true)
+            }
+        },'-'),
+        span(model.msg || model.count)
     ]);
 }
 function update(model: any, action: Action) {
@@ -35,7 +36,7 @@ function update(model: any, action: Action) {
         case DECREMENT:
             return { count: model.count - 1, msg: '' };
         case LAZY:
-            return { ...model, msg: 'loaading...' };
+            return { ...model, msg: 'loading...' };
         default:
             return model;
     }
@@ -43,6 +44,6 @@ function update(model: any, action: Action) {
 export default {
     init,
     view,
-    update,    
+    update,
     actions: { INCREMENT, DECREMENT, LAZY }
 };

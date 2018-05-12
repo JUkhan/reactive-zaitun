@@ -1,36 +1,44 @@
-import { ViewObj, Router } from '../../src/index';
+import { ViewObj, Router, Action } from 'zaitun';
 import { html } from 'snabbdom-jsx';
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/mergeMap';
+import { of } from 'rxjs';
+import { mergeMap, delay } from 'rxjs/operators';
+import { Effect} from 'zaitun-effect';
+//import 'rxjs/add/observable/of';
+//import 'rxjs/add/operator/mergeMap';
+//import 'rxjs/add/operator/delay';
 
 function init() {
     return { boxList: [] }
 }
 function afterViewRender(dispatch, router: Router) {
-    router.effect$
-        .addEffect(eff =>
+    router.
+        addEffect((eff: Effect) =>
             eff.whenAction('mousemove')
-                .mergeMap(action => {
-                    const ev = action.payload;
-                    action.payload = {
-                        key: Math.floor(Math.random() * 1000000),
-                        opacity: '0', transition: 'opacity 1s',
-                        delayed: { opacity: '1' },
-                        remove: { opacity: '0' },
-                        width: '20px',
-                        height: '20px',
-                        top: (ev.clientY - 7) + 'px',
-                        left: (ev.clientX - 12) + 'px',
-                        position: 'absolute',
-                        backgroundColor: `rgb(${random(0, 255)},${random(0, 255)},${random(0, 255)})`,
-                        borderRadius: '.4em',
-                        boxShadow: `-7px -8px 6px -7px rgba(${random(0, 255)},${random(0, 255)},${random(0, 255)},0.75)`
-                    };
-                    action.type = 'new-box'
-                    return Observable.of(action);
-                })
+                .pipe(
+                    delay(0),
+                    mergeMap((action: Action) => {
+                        const ev = action.payload;
+                        action.payload = {
+                            key: Math.floor(Math.random() * 1000000),
+                            style: {
+                                opacity: '0', transition: 'opacity 1s',
+                                delayed: { opacity: '1' },
+                                remove: { opacity: '0' },
+                                width: '20px',
+                                height: '20px',
+                                top: (ev.clientY - 7) + 'px',
+                                left: (ev.clientX - 12) + 'px',
+                                position: 'absolute',
+                                backgroundColor: `rgb(${random(0, 255)},${random(0, 255)},${random(0, 255)})`,
+                                borderRadius: '.4em',
+                                boxShadow: `-7px -8px 6px -7px rgba(${random(0, 255)},${random(0, 255)},${random(0, 255)},0.75)`
+                            }
+                        };
+                        action.type = 'new-box'
+                        return of(action);
+                    })
+                )
         );
 }
 function random(low, high) {
@@ -39,7 +47,7 @@ function random(low, high) {
 function view({ model, dispatch }: ViewObj) {
     return <div on-mousemove={ev => dispatch({ type: 'mousemove', payload: ev }, true)}
         style={{ width: '100%', height: '400px', border: '#ddd 1px solid' }}>
-        {model.boxList.map(box => <div key={box.key} style={box}></div>)}
+        {model.boxList.map(box => <div key={box.key} style={box.style}></div>)}
     </div>
 }
 

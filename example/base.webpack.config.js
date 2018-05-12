@@ -4,24 +4,25 @@ var webpack = require ('webpack');
 var basePath = __dirname;
 var ExtractTextPlugin = require ('extract-text-webpack-plugin');
 var {CheckerPlugin} = require ('awesome-typescript-loader');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   context: path.join (basePath, 'src'),
   resolve: {
     modules: [basePath, path.resolve (basePath, 'src'), 'node_modules'],
-    extensions: ['.ts', '.js', '.tsx', '.scss', '.css'],
+    extensions: ['.ts', '.tsx', '.js', '.jsx',  '.scss', '.css'],
   },
   entry: {
     app: './main.ts',
-    appStyles: ['./content/devTool.scss', './content/styles.scss'],
-    vendor: [
-      //'jquery',
-      'materialize-css',
-    ],
-    vendorStyles: [
+    appStyles: [/*'./styles/devTool.scss',*/ './styles/styles.scss','./styles/ui.scss'],
+    //vendor: [
+      //'jquery',      
+      //'materialize-css',
+    //],
+    //vendorStyles: [
       //'../node_modules/bootstrap/dist/css/bootstrap.css',
-      '../node_modules/materialize-css/dist/css/materialize.css',
-    ],
+      //'../node_modules/materialize-css/dist/css/materialize.css',
+    //],
   },
   module: {
     loaders: [
@@ -46,7 +47,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        include: /node_modules/,
+        exclude: /node_modules/,
         loader: ExtractTextPlugin.extract ({
           fallback: 'style-loader',
           use: {
@@ -81,6 +82,10 @@ module.exports = {
         test: /\.html$/,
         loader: 'html-loader',
       },
+      {
+        test: /\.worker\.js$/,
+        use: { loader: 'worker-loader' }
+      }
     ],
   },
   plugins: [
@@ -93,6 +98,9 @@ module.exports = {
       names: ['vendor', 'manifest'],
     }),
     new webpack.HashedModuleIdsPlugin (),
-    new CheckerPlugin (),
+    new CheckerPlugin (),    
+    new CopyWebpackPlugin([
+      {from:'assets', to:'assets'}       
+    ])
   ],
 };

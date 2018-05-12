@@ -1,73 +1,68 @@
 {
-  "name": "zaitun",
-  "version": "1.6.13",
-  "description": "a functional reactive framework for front-end application development either in JavaScript or a language like TypeScript that compiles to JavaScript.",
-  "main": "index.js",
-  "module": "es/index.js",
-  "typings": "index.d.ts",
-  "directories": {
-    "example": "example",
-    "test": "test"
+  "name": "ts-webpack-hmr",
+  "version": "1.0.0",
+  "description": "Example for typescript and webpack with hot module replacement",
+  "scripts": {
+    "format": "prettier --tab-width 4 --single-quote --write './**/*.{js,jsx,ts,tsx}'",
+    "start": "webpack-dev-server --config=dev.webpack.config.js",
+    "build": "rimraf dist && webpack --config=dev.webpack.config.js",
+    "build:prod": "rimraf dist && webpack -p --config=prod.webpack.config.js",
+    "tcompile": "webpack --config=test.webpack.config.js",
+    "compile:test:watch": "webpack -w --config=test.webpack.config.js",
+    "test": "npm run tcompile && testem"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krausest/ts-webpack-hmr"
+  },
+  "keywords": [
+    "webpack",
+    "hot module replacement",
+    "hmr",
+    "typescript",
+    ""
+  ],
+  "license": "Apache-2.0",
   "dependencies": {
-    "history": "^4.7.2",
-    "rxjs": "^5.5.5",
-    "snabbdom": "^0.7.0"
+    "snabbdom-jsx": "^0.4.2",
+    "zaitun": "file:./zaitun",
+    "zaitun-effect": "file:./zaitun-effect",
+    "zaitun-devtool": "file:./zaitun-devtool"
   },
   "devDependencies": {
-    "@types/es6-promise": "0.0.33",
+    "@types/chai": "^4.0.10",
+    "@types/mocha": "^2.2.45",
+    "@types/webpack-env": "^1.13.0",
+    "awesome-typescript-loader": "^3.2.1",
     "benchmark": "^2.1.4",
     "browserify": "^14.4.0",
+    "chai": "^4.1.2",
+    "copy-webpack-plugin": "^4.3.1",
+    "css-loader": "^0.28.7",
+    "deumdify": "^1.2.4",
+    "extract-text-webpack-plugin": "^3.0.0",
     "fake-raf": "1.0.1",
+    "file-loader": "^1.1.6",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^2.6.0",
     "gulp-uglify": "^3.0.0",
+    "html-loader": "^0.5.1",
+    "html-webpack-plugin": "^2.30.1",
     "knuth-shuffle": "^1.0.1",
-    "testem": "^1.18.1",
-    "typescript": "^2.4.2",
+    "loglevel": "^1.4.1",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.19.1",
+    "testem": "^1.18.4",
+    "typescript": "^2.8.3",
+    "uglify-js": "^2.8.13",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.3.0",
+    "webpack-dev-server": "^2.6.0",
+    "webpack-merge": "^4.1.1",
+    "worker-loader": "^1.1.0",
     "xyz": "2.1.0"
-  },
-  "scripts": {
-    "pretest": "npm run compile",
-    "test": "testem",
-    "compile": "npm run compile-es && npm run compile-commonjs",
-    "compile-es": "tsc --outDir es --module es6 --moduleResolution node",
-    "compile-umd": "tsc --outDir umd --module umd --moduleResolution node",
-    "compile-commonjs": "tsc --outDir ./",
-    "prepublish": "npm run compile",
-    "compress": "gulp compress",
-    "compile-example": "browserify -d example/main.js -o example/browserified.js",
-    "release-major": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment major",
-    "release-minor": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment minor",
-    "release-patch": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment patch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/JUkhan/reactive-zaitun.git"
-  },
-  "contributors": [
-    {
-      "name": "Jasim Uddin Khan",
-      "email": "jasim.uddin.khan@gmail.com"
-    }
-  ],
-  "keywords": [
-    "virtual",
-    "dom",
-    "light",
-    "reactive",
-    "rxjs",
-    "ngrx",
-    "redux",
-    "functional",
-    "performance"
-  ],
-  "author": "Jasim Uddin Khan",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/JUkhan/reactive-zaitun/issues"
-  },
-  "homepage": "https://github.com/JUkhan/reactive-zaitun#readme"
+  }
 }

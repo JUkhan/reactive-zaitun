@@ -1,105 +1,72 @@
-import { ViewObj, Action, h, Router } from '../../src/index';
+import { Action, ViewObj, Router } from 'zaitun';
+import { div, h4, a, input, ul, li, span } from 'zaitun/dom';
+
+import { from} from 'rxjs';
+import {
+    map,
+    debounceTime,
+    tap,
+    filter,
+    switchMap,
+    distinctUntilChanged
+} from 'rxjs/operators';
 
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/takeWhile';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/operator/concatMap';
-import 'rxjs/add/operator/concat';
-import 'rxjs/add/observable/defer';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/let';
-import 'rxjs/add/observable/interval';
-import 'rxjs/add/observable/from';
-import 'rxjs/add/observable/of';
-import { animationFrame } from 'rxjs/scheduler/animationFrame';
-import { Scheduler } from 'rxjs/Scheduler';
-
-//https://github.com/mattdesl/eases
+const SEARCH = 'search';
+const SEARCH_RESULT = 'search result';
 
 function init() {
-    return {}
+    return { data: null, search: '', msg: '' }
 }
-function msElapsed(scheduler = animationFrame) {
-    const start = Scheduler.now();
-    return Observable.defer(() => {
-        return Observable.interval(0, scheduler)
-            .map((t: any) => Scheduler.now() - start)
-    })
+
+function afterViewRender(dispatch, router: Router) {
+
+    router.addEffect(eff$ =>
+        eff$.whenAction(SEARCH)
+            .pipe(
+            debounceTime(500),
+            distinctUntilChanged(),
+            filter((action:Action) => action.payload.length > 1),
+            switchMap((action:Action) =>
+                from(
+                    fetch(`https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search=${action.payload}&limit=5`)
+                        .then(res => res.json()))
+                    .pipe(
+                    tap(console.log),
+                    map(res => ({ ...action, type: SEARCH_RESULT, payload: res }))
+                    )
+            ))
+    )
 }
-function elasticOut(t) {
-    return Math.sin(-13.0 * (t + 1.0) * Math.PI / 2) * Math.pow(2.0, -10.0 * t) + 1.0
-}
-function pixelsPerSecond(v) {
-    return ms => v * ms / 1000;
-}
-function distance(pixels) {
-    return t => t * pixels;
-}
-function duration(ms) {
-    return msElapsed()
-        .map(t => t / ms)
-        .takeWhile(t => t < 1);
-    //.concat(Observable.of(1));
-}
-function moveBall(duration$: Observable<any>) {
-    const elm: any = document.querySelector('#box');
-    return duration$
-        .map(elasticOut)
-        .map(distance(430))
-        .do(frame => {
-            elm.style.transform = `translate3d(0, ${frame}px, 0)`;
-        })
-}
-function moveDown(elm, pixels) {
-    return (duration$: Observable<any>) => duration$.map(elasticOut)
-        .map(distance(pixels))
-        .do(frame => {
-            elm.style.transform = `translate3d(0, ${frame}px, 0)`;
-        })
-}
-function afterViewRender(router:Router) {
-    //const elm:any=document.querySelector('#box');
-    //moveBall(duration(1500)).subscribe();
-    //moveDown(elm)(duration(1500)).subscribe();
-    //duration(2000).let(moveDown(elm)).subscribe();
-    
-    const balls = document.querySelectorAll('.ball');
-    Observable.from(balls)
-        .concatMap((ball, i) =>
-            duration((i + 1) * 500).let(moveDown(ball, 430))
-        )
-        .subscribe();
-}
-function getStyle(left) {
-    return {
-        width: '70px',
-        height: '70px',
-        backgroundColor: 'cyan',
-        position: 'relative',
-        left: left + 'px',
-        display: 'inline-block'
-    }
-}
-function getSvg(){
-    return h('svg', {attrs: {width: 100, height: 100}}, [
-        h('circle', {attrs: {cx: 50, cy: 50, r: 40, stroke: 'green', 'stroke-width': 4, fill: 'yellow'}})
-      ]);
-}
+
 function view({ model, dispatch }: ViewObj) {
-    return h('div.asde',{style:{height: '500px', border: 'solid 1px gray' }},[
-        h('div.ball',{style:getStyle(100)}),
-        h('div.ball',{style:getStyle(200)}),
-        h('div.ball',{style:getStyle(300)})
-    ])
-    
+    var res = [];
+    if (model.data) {
+        res.push(div('.card', div('.card-body', [
+            h4('.card-title', model.data[0]),
+            ul('.list-group', model.data[1].map(_ => li('.list-group-item.list-group-item-success', _))),
+            ul('.list-group', model.data[2].map(_ => li('.list-group-item.list-group-item-info', _))),
+            div('.list-group', model.data[3].map(_ => a('.list-group-item.list-group-item-action', { props: { href: _ } }, _)))
+        ])));
+
+    }
+    return div([
+        input({
+            props: { type: 'text', value: model.search, placeholder: 'wiki search...' },
+            on: { input: (ev: any) => dispatch({ type: SEARCH, payload: ev.target.value }, true) }
+        }
+        ),
+        span(model.msg),
+        div(res)
+    ]);
 }
 
 function update(model, action: Action) {
+    switch (action.type) {
+        case SEARCH: return { ...model, search: action.payload, msg: action.payload ? 'loading...' : '' }
+        case SEARCH_RESULT: return { ...model, data: action.payload, msg: '' }
+        default: return model;
+    }
+}
 
-}
-function onDestroy(){
-    console.log('on--destroy');
-}
-export default { init, view, update, afterViewRender,onDestroy };
+export default { init, view, update, afterViewRender };

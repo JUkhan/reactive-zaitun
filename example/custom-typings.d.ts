@@ -1,3 +1,12 @@
-/// <reference path="node_modules/snabbdom-jsx/snabbdom-jsx.d.ts" />
-declare var jsx: any;
+
 declare var System: any;
+
+declare module "worker-loader!*" {
+    class WebpackWorker extends Worker {
+      constructor();
+    }
+   
+    export default  WebpackWorker;
+  }
+  
+ 

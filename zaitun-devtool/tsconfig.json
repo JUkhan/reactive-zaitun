@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "noImplicitAny": false,
+        "sourceMap": true,
+        "strictNullChecks": false,
+        "declaration": true,
+        "removeComments": false,
+        "noUnusedLocals": true,
+        "lib": ["es7","es6", "es5", "dom"]  
+    },
+    "files": [        
+        "src/devTool.ts"             
+    ]
+}

@@ -1,4 +1,6 @@
-import { h, Action, ViewObj } from '../../src/index';
+import { Action, ViewObj } from 'zaitun';
+import {div, h3} from 'zaitun/dom';
+
 import Counter from './counter';
 
 const COUNTER_UPDATE = 'counterUpdate';
@@ -10,10 +12,10 @@ function init() {
 }
 
 function view({ model, dispatch, router }:ViewObj) {
-    return h('div', [
-        h('h3', 'Parent Component'),
-        h('div', model.incAt ? 'Last incremented at: ' + model.incAt : ''),
-        h('div', model.decAt ? 'Last decremented at: ' + model.decAt : ''),
+    return div([
+        h3('Parent Component'),
+        div(model.incAt ? 'Last incremented at: ' + model.incAt : ''),
+        div(model.decAt ? 'Last decremented at: ' + model.decAt : ''),
         Counter.view({
             model: model.counter,
             dispatch: router.bindEffect(action =>

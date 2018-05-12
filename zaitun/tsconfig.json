@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "noImplicitAny": false,
+        "sourceMap": true,
+        "strictNullChecks": false,
+        "declaration": true,
+        "removeComments": false,
+        "noUnusedLocals": true,
+        "lib": ["es7","es6", "es5", "dom"]  
+    },
+    "files": [
+        "src/bootstrap.ts",
+        "src/componentManager.ts",
+        //"src/devTool/devTool.ts",
+        //"src/effect.ts",
+        "src/index.ts",
+        "src/router.ts"       
+    ]
+}

@@ -1,0 +1,39 @@
+
+.juGrid{
+    background-color: transparent;
+    .selected{
+        background-color: #345; 
+        color: white;
+      }    
+    .not-active{
+        color:rgba(0,0,0,0.2);
+    }
+    thead .fa{
+        width:14px; 
+    }
+    td .concat{
+        overflow: hidden;
+        -ms-text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        text-overflow: ellipsis;
+        width: inherit;
+    }
+    .juPager{
+        select{
+            margin: 0 5px;
+        }
+        select.form-control{
+            display:inline-block;
+            width: inherit; 
+        }
+        .search.form-control{
+            display:inline-block;
+            width: inherit; 
+        }
+    }
+}
+.juForm{
+    .required{
+        color: red;
+    }
+}
