@@ -1,11 +1,11 @@
-# @zaitun/dom
+# zaitun/dom
 
 snabbdom modules and dom helper functions 
 
 ## uses
 
 ```javascript
-import {div, h3, svg} from '@zaitun/dom';
+import {div, h3, svg} from 'zaitun/dom';
 
 function view(){
     div([
