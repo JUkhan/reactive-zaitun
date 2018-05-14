@@ -1,3 +1,6 @@
+/test
+/perf
+
 # Logs
 logs
 *.log
@@ -28,26 +31,3 @@ node_modules
 
 # Vim
 *.swp
-
-# Generated JavaScript
-
-/example/package-lock.json
-/devTool.d.ts
-/devTool.js.map
-/devTool.js
-/modules.d.ts
-/modules.js.map
-/modules.js
-/models.d.ts
-/models.js.map
-/models.js
-
-/es/devTool.d.ts
-/es/devTool.js.map
-/es/devTool.js
-/es/modules.d.ts
-/es/modules.js.map
-/es/modules.js
-/es/models.d.ts
-/es/models.js.map
-/es/models.js

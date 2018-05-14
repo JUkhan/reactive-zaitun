@@ -4,11 +4,9 @@ import { html } from 'snabbdom-jsx';
 import { of } from 'rxjs';
 import { mergeMap, delay } from 'rxjs/operators';
 import { Effect} from 'zaitun-effect';
-//import 'rxjs/add/observable/of';
-//import 'rxjs/add/operator/mergeMap';
-//import 'rxjs/add/operator/delay';
 
 function init() {
+    
     return { boxList: [] }
 }
 function afterViewRender(dispatch, router: Router) {

@@ -24,10 +24,12 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
+    "history": "^4.7.2",
     "snabbdom-jsx": "^0.4.2",
     "zaitun": "file:./zaitun",
-    "zaitun-effect": "file:./zaitun-effect",
-    "zaitun-devtool": "file:./zaitun-devtool"
+    "zaitun-devtool": "file:./zaitun-devtool",
+    "zaitun-dom": "file:./zaitun-dom",
+    "zaitun-effect": "file:./zaitun-effect"
   },
   "devDependencies": {
     "@types/chai": "^4.0.10",

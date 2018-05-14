@@ -13,7 +13,7 @@ import {
 } from './models';
 import { createBrowserHistory, createHashHistory, createMemoryHistory } from 'history';
 import { captureClicks } from './captureClicks';
-import { h } from "snabbdom/h";
+import { h } from "zaitun-dom";
 
 export class Router {
     public activeRoute: ActiveRoute = <ActiveRoute>{};

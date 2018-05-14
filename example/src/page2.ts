@@ -1,4 +1,4 @@
-import { Action, ViewObj, Router } from 'zaitun';
+import { Action, ViewObj, Router} from 'zaitun';
 import { div, h4, a, input, ul, li, span } from 'zaitun/dom';
 
 import { from} from 'rxjs';

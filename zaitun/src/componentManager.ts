@@ -1,12 +1,12 @@
 import { Router } from './router';
 import { RouteOptions } from './models';
 import { Component, Action, BootstrapOptions } from './models';
-import DomModules from './dom/modules';
-import {div} from './dom';
+
+import {div, Modules} from 'zaitun-dom';
 
 declare const require: any;
 const snabbdom = require('snabbdom');
-const patch = snabbdom.init(DomModules);
+const patch = snabbdom.init(Modules);
 
 
 export function ComponentManager(boptions: BootstrapOptions) {

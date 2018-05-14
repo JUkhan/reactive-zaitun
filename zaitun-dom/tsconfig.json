@@ -10,10 +10,8 @@
         "lib": ["es7","es6", "es5", "dom"]  
     },
     "files": [
-        "src/bootstrap.ts",
-        "src/componentManager.ts",
-        "src/dom/index.ts",
+        "src/hyperscript-helpers.ts",              
         "src/index.ts",
-        "src/router.ts"       
+        "src/modules.ts"       
     ]
 }

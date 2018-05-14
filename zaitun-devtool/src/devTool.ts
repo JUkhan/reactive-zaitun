@@ -1,11 +1,12 @@
 import './devTool.css';
 import { IComponentManager, Action } from './models';
-import DomModules from './modules';
+
+import {h, VNode, Modules} from 'zaitun-dom';
 
 declare const require: any;
 const snabbdom = require('snabbdom');
-const patch = snabbdom.init(DomModules);
-const h = require('snabbdom/h').default; 
+const patch = snabbdom.init(Modules);
+ 
 
 const ResetComponent = 'DEV_TOOL_ResetComponent';
 const ResetTool = 'DEV_TOOL_ResetTool';
@@ -89,7 +90,7 @@ export class DevTool {
     view({
         model,
         handler
-    }) {
+    }):VNode {
         this.toolHandler = handler;
         return model.hide ?
             h('button', {
@@ -195,7 +196,7 @@ export class DevTool {
             case LogState:
                 console.log(action.payload.model);
                 return model;
-            case Resize:
+            case Resize:                
                 return Object.assign({}, model, {
                     height: action.payload
                 });

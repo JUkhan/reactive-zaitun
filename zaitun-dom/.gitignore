@@ -31,23 +31,14 @@ node_modules
 
 # Generated JavaScript
 
-/example/package-lock.json
-/devTool.d.ts
-/devTool.js.map
-/devTool.js
+/hyperscript-helpers.d.ts
+/hyperscript-helpers.js.map
+/hyperscript-helpers.js
 /modules.d.ts
-/modules.js.map
 /modules.js
-/models.d.ts
-/models.js.map
-/models.js
+/modules.js.map
 
-/es/devTool.d.ts
-/es/devTool.js.map
-/es/devTool.js
-/es/modules.d.ts
-/es/modules.js.map
-/es/modules.js
-/es/models.d.ts
-/es/models.js.map
-/es/models.js
+/index.d.ts
+/index.js
+/index.js.map
+/es

@@ -1,25 +1,29 @@
 {
-  "name": "zaitun-devtool",
+  "name": "zaitun-dom",
   "version": "1.0.2",
-  "description": "zaitun-devtool",
-  "main": "devTool.js",
-  "module": "es/devTool.js",
-  "typings": "devTool.d.ts",
-  "dependencies": {
-    "zaitun-dom": "^1.0.2"
+  "description": "snabbdom modules and dom helper functions ",
+  "main": "index.js",
+  "module": "es/index.js",
+  "typings": "index.d.ts",
+  "directories": {
+    "example": "example",
+    "test": "test"
+  },
+  "dependencies": {    
+    "snabbdom": "^0.7.0"
   },  
   "scripts": {
     "pretest": "npm run compile",
     "test": "testem",
     "compile": "npm run compile-es && npm run compile-commonjs",
     "compile-es": "../node_modules/.bin/tsc --outDir es --module es6 --moduleResolution node",
-    "compile-umd": "tsc --outDir umd --module umd --moduleResolution node",
+    "compile-umd": "../node_modules/.bin/tsc --outDir umd --module umd --moduleResolution node",
     "compile-commonjs": "../node_modules/.bin/tsc --outDir ./",
     "prepublish": "npm run compile",    
     "compile-example": "browserify -d example/main.js -o example/browserified.js",
-    "release-major": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment major",
-    "release-minor": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment minor",
-    "release-patch": "xyz --repo git@github.com/JUkhan/reactive-zaitun.git --increment patch"
+    "release-major": "xyz --repo git@github.com/JUkhan/zaitun.git --increment major",
+    "release-minor": "xyz --repo git@github.com/JUkhan/zaitun.git --increment minor",
+    "release-patch": "xyz --repo git@github.com/JUkhan/zaitun.git --increment patch"    
   },
   "repository": {
     "type": "git",
@@ -31,7 +35,12 @@
       "email": "jasim.uddin.khan@gmail.com"
     }
   ],
-  "keywords": [],
+  "keywords": [
+    "virtual",
+    "dom",
+    "light",    
+    "performance"
+  ],
   "author": "Jasim Uddin Khan",
   "license": "MIT",
   "bugs": {
