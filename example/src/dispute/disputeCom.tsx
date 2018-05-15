@@ -2,8 +2,9 @@ import { FormOptions, GridOptions } from '../ui/uimodel';
 import { html } from 'snabbdom-jsx';
 import { juForm } from '../ui/juForm';
 import { juGrid } from '../ui/juGrid';
-import DisputeService from './disputeService';
-import appService from '../appService';
+import {DisputeService} from './disputeService';
+import {AppService} from '../appService';
+import {Injector} from 'zaitun';
 
 export default class disputeCom {
     form: juForm;
@@ -18,12 +19,13 @@ export default class disputeCom {
     hcfaData;
     model: any;
     rprSR;
+    appService:AppService;
     constructor() {
         this.form = new juForm();
         this.Rpr = new juGrid();
         this.Hcfa = new juGrid();
-        this.service = new DisputeService();
-
+        this.service = Injector.get(DisputeService);
+        this.appService=Injector.get(AppService);
         this.activeTab = 'RPR Dispute Codes';
         this.buttons = { save: false, add: false, delete: false };
         this.editable = false;
@@ -79,8 +81,9 @@ export default class disputeCom {
         }
     }
     remove() {
-        appService.confirm('Confirm', <p>Are you sure?</p>)
-            .then(() => {
+        this.appService.confirm('Confirm', <p>Are you sure?</p>)
+            .then((res) => {
+               
                 this.activeTab === 'RPR Dispute Codes' ?
                     this.Rpr.removeRow(this.rprSR).refresh()
                     : this.Hcfa.removeRow(this.hcfaSR).refresh()

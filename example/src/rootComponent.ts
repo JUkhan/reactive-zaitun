@@ -1,11 +1,11 @@
-import { Router, ViewObj, Dispatch, Action } from 'zaitun';
+import { Router, ViewObj, Dispatch, Action, Injector } from 'zaitun';
 import { div, h3, nav, a, ul, li } from 'zaitun/dom';
 
 
 import { mergeMap } from 'rxjs/operators';
 import { empty } from 'rxjs';
 import counter from './counter';
-import appService from './appService';
+import {AppService} from './appService';
 import { juForm } from './ui/juForm';
 import {Effect} from 'zaitun-effect';
 
@@ -14,7 +14,7 @@ const CHILD = Symbol('CHILD');
 const INC_AT = 'incAt';
 const DEC_AT = 'decAt';
 var popup: juForm = new juForm();
-
+var appService=Injector.get(AppService);
 function getPopupOptions() {
     return {
         viewMode: 'popup',

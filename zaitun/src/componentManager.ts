@@ -3,6 +3,7 @@ import { RouteOptions } from './models';
 import { Component, Action, BootstrapOptions } from './models';
 
 import {div, Modules} from 'zaitun-dom';
+import {disposePageScopeInstance} from './di/injectable';
 
 declare const require: any;
 const snabbdom = require('snabbdom');
@@ -109,7 +110,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
         if (typeof that.child.onDestroy === 'function') {
             that.child.onDestroy();
         }
-
+        disposePageScopeInstance();
     }
 
     function setComponentToCache(key: any, state: any) {

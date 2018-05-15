@@ -1,6 +1,9 @@
 import { juForm } from './ui/juForm';
 import { VNode, div } from 'zaitun/dom';
-class appService {
+import {Injectable} from 'zaitun';
+
+@Injectable()
+export class AppService {
     popup: juForm;
     private _popup_promise_resolve = null;
     private _popup_btn_name = '';
@@ -61,5 +64,3 @@ class appService {
     }
 }
 
-const service = new appService();
-export default service;

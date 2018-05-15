@@ -1,5 +1,7 @@
+import {Injectable} from 'zaitun';
 
-export default class disputeService{
+@Injectable('page')
+export  class DisputeService{
     ch:any[];
     hccd:any;
     constructor(){

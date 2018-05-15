@@ -11,7 +11,6 @@ import {
     distinctUntilChanged
 } from 'rxjs/operators';
 
-
 const SEARCH = 'search';
 const SEARCH_RESULT = 'search result';
 
@@ -20,7 +19,7 @@ function init() {
 }
 
 function afterViewRender(dispatch, router: Router) {
-
+    
     router.addEffect(eff$ =>
         eff$.whenAction(SEARCH)
             .pipe(
