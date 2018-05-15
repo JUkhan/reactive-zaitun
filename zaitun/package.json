@@ -1,6 +1,6 @@
 {
   "name": "zaitun",
-  "version": "1.6.15",
+  "version": "1.7.0",
   "description": "a functional and reactive framework for front-end application development either in JavaScript or a language like TypeScript that compiles to JavaScript.",
   "main": "index.js",
   "module": "es/index.js",
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "history": "^4.7.2",
-    "zaitun-dom": "^1.0.0"
+    "zaitun-dom": "^1.0.3"
   },  
   "scripts": {
     "pretest": "npm run compile",
