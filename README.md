@@ -3,6 +3,8 @@ Zaitun is a functional reactive framework for front-end application development 
 
 Inspired by [Elm Architecture](https://guide.elm-lang.org/architecture/) 
 
+## v1.7.0 added Dependency Injection(DI) [Live Example](https://stackblitz.com/edit/zaitun-di?file=appService.ts)
+
 ## Quick start or ([Live App](https://stackblitz.com/edit/zaitunapp-4akuet?embed=1&file=counter.ts))
 ```sh
 git clone https://github.com/JUkhan/zaitun-starter-kit-typescript.git quickstart
