@@ -6,7 +6,7 @@ export interface InjectableDecorator {
     (): any;
     (scope: 'application' | 'page'): any;
     (scope: 'application' | 'page', deps?: Type<any>[]): any;
-    (scope: 'application' | 'page', deps?: Type<any>[], factory?: (...any) => any): any;
+    (scope: 'application' | 'page', deps?: Type<any>[], factory?: (...any: any[]) => any): any;
 }
 /**
  * Creates an injector for a given class.
@@ -19,5 +19,6 @@ export interface InjectableDecorator {
 export declare const Injectable: InjectableDecorator;
 export declare abstract class Injector {
     static get<T>(token: Type<T>, notFoundValue?: T): T;
+    static has(token: any): boolean;
 }
 export declare function disposePageScopeInstance(): void;

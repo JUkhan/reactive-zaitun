@@ -1,4 +1,626 @@
 (function(f){var g;if(typeof window!=='undefined'){g=window}else if(typeof self!=='undefined'){g=self}g.zaitun=f()})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],2:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var router_1 = require("./router");
+var componentManager_1 = require("./componentManager");
+function bootstrap(options) {
+    if (!options.containerDom) {
+        throw new Error('mountNode must be a css selector or a dom object');
+    }
+    if (typeof options.containerDom === 'string') {
+        options.containerDom = document.querySelector(options.containerDom);
+    }
+    if (!(typeof options.mainComponent === 'object' || typeof options.mainComponent === 'function')) {
+        throw new Error('bootstrap options: mainComponent missing.');
+    }
+    return new router_1.Router(options, new componentManager_1.ComponentManager(options));
+}
+exports.bootstrap = bootstrap;
+exports.default = bootstrap;
+
+},{"./componentManager":4,"./router":34}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var CLICK_EVENT = typeof document !== 'undefined' && document.ontouchstart
+    ? 'touchstart'
+    : 'click';
+function which(ev) {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+    var e = ev || window.event;
+    return e.which === null ? e.button : e.which;
+}
+function sameOrigin(href) {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+    return href && href.indexOf(window.location.origin) === 0;
+}
+function makeClickListener(push) {
+    return function clickListener(event) {
+        if (which(event) !== 1) {
+            return;
+        }
+        if (event.metaKey || event.ctrlKey || event.shiftKey) {
+            return;
+        }
+        if (event.defaultPrevented) {
+            return;
+        }
+        var element = event.target;
+        while (element && element.nodeName !== 'A') {
+            element = element.parentNode;
+        }
+        if (!element || element.nodeName !== 'A') {
+            return;
+        }
+        if (element.hasAttribute('download') ||
+            element.getAttribute('rel') === 'external') {
+            return;
+        }
+        if (element.target) {
+            return;
+        }
+        var link = element.getAttribute('href');
+        if ((link && link.indexOf('mailto:') > -1) || link.charAt(0) === '#') {
+            return;
+        }
+        if (!sameOrigin(element.href)) {
+            return;
+        }
+        event.preventDefault();
+        push({ pathname: decodeURI(element.pathname), search: decodeURI(element.search), hash: '' });
+    };
+}
+function captureClicks(push) {
+    var listener = makeClickListener(push);
+    if (typeof window !== 'undefined') {
+        document.addEventListener(CLICK_EVENT, listener, false);
+    }
+    return function () { return document.removeEventListener(CLICK_EVENT, listener); };
+}
+exports.captureClicks = captureClicks;
+
+},{}],4:[function(require,module,exports){
+"use strict";
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var zaitun_dom_1 = require("zaitun-dom");
+var injectable_1 = require("./di/injectable");
+var snabbdom = require('snabbdom');
+var patch = snabbdom.init(zaitun_dom_1.Modules);
+function ComponentManager(boptions) {
+    var mcom = {}, model = {}, params = null, key = '', cacheObj = {}, active_route = {}, vnode = boptions.containerDom, options = boptions, rootDispatch, root_com_cache_id = 'rootid', that = this;
+    this.router = null;
+    this.devTool = null;
+    this._isTestEnable = false;
+    this._testCallback;
+    this.getAppState = function () { return model; };
+    function getEmptyCom() {
+        return {
+            init: function () {
+                return {};
+            },
+            view: function (obj) {
+                return zaitun_dom_1.div('.com-loading', 'loading...');
+            },
+            update: function () {
+                return {};
+            }
+        };
+    }
+    that.child = getEmptyCom();
+    function initMainComponent(component, router) {
+        if (typeof component === 'object') {
+            mcom = component;
+        }
+        else if (typeof component === 'function') {
+            mcom = new component();
+            mcom.router = router;
+        }
+        validateCom(mcom);
+        rootDispatch = router.bindEffect(dispatch);
+        that.router.dispatch = rootDispatch;
+        router.rootDispatch = rootDispatch;
+    }
+    function validateCom(com) {
+        if (typeof com.init !== 'function') {
+            com.init = function () {
+                return {};
+            };
+        }
+        if (typeof com.view !== 'function') {
+            throw new Error('Component must have a view function.');
+        }
+    }
+    function initChildComponent(component, router) {
+        if (typeof component === 'object') {
+            that.child = component;
+        }
+        else if (typeof component === 'function') {
+            that.child = new component();
+            that.child.router = router;
+        }
+        validateCom(that.child);
+    }
+    function updateUI() {
+        var newVnode = mcom.view({
+            model: model,
+            dispatch: rootDispatch,
+            router: that.router
+        });
+        vnode = patch(vnode, newVnode);
+    }
+    function dispatch(action) {
+        model = mcom.update(model, action, that.router);
+        updateUI();
+        if (that._isTestEnable) {
+            that._testCallback({ model: model, action: action });
+        }
+        if (that.devTool) {
+            that.devTool.setAction(action, model);
+        }
+        if (active_route.cache || (options.cacheStrategy === 'local' || options.cacheStrategy === 'session')) {
+            setComponentToCache(key, model);
+        }
+    }
+    function fireDestroyEvent(path, callback) {
+        var tid = setTimeout(function () {
+            callback(path);
+            clearTimeout(tid);
+        }, 0);
+        if (key) {
+            setComponentToCache(key, model);
+        }
+        if (typeof that.child.onDestroy === 'function') {
+            that.child.onDestroy();
+        }
+        injectable_1.disposePageScopeInstance();
+    }
+    function setComponentToCache(key, state) {
+        if (active_route.cache) {
+            if (getCacheStrategy() === 'session') {
+                sessionStorage.setItem(key, that.json_stringify(state.child));
+            }
+            else if (getCacheStrategy() === 'local') {
+                localStorage.setItem(key, that.json_stringify(state.child));
+            }
+            else {
+                cacheObj[key] = state.child;
+            }
+        }
+        var obj = __assign({}, state);
+        obj.child = null;
+        if (options.cacheStrategy === 'session') {
+            sessionStorage.setItem(root_com_cache_id, that.json_stringify(obj));
+        }
+        else if (options.cacheStrategy === 'local') {
+            localStorage.setItem(root_com_cache_id, that.json_stringify(obj));
+        }
+        else {
+            cacheObj[root_com_cache_id] = obj;
+        }
+    }
+    function getCacheData(key) {
+        if (getCacheStrategy() === 'session') {
+            return that.json_parse(sessionStorage.getItem(key));
+        }
+        else if (getCacheStrategy() === 'local') {
+            return that.json_parse(localStorage.getItem(key));
+        }
+        return cacheObj[key];
+    }
+    function getCacheStrategy() {
+        return active_route.cacheStrategy ? active_route.cacheStrategy : options.cacheStrategy;
+    }
+    this.json_parse = function (data) {
+        return JSON.parse(data);
+    };
+    this.json_stringify = function (data) {
+        return JSON.stringify(data);
+    };
+    this.reset = function () {
+        model = mcom.init(rootDispatch, params, this.router);
+        if (typeof that.child.init === 'function') {
+            model.child = that.child.init(that.router.dispatch, params, that.router);
+        }
+        updateUI();
+    };
+    this.updateByModel = function (_model) {
+        model = _model;
+        updateUI();
+    };
+    function loadCom(route) {
+        route.loadComponent().then(function (com) {
+            runChildHelper(com.default, route);
+        });
+    }
+    function getModel(component, dispatch, key, params) {
+        if (!key)
+            return component.init(dispatch, params, that.router);
+        var data = getCacheData(key);
+        if (data) {
+            if (typeof component.onCache === 'function')
+                data = component.onCache(data);
+        }
+        else
+            data = component.init(dispatch, params, that.router);
+        return data;
+    }
+    function runChildHelper(component, route) {
+        active_route = route;
+        params = route.routeParams;
+        key = route.cache ? route.navPath : '';
+        initChildComponent(component, that.router);
+        model.child = getModel(that.child, that.router.dispatch, key, route.routeParams);
+        updateUI();
+        if (typeof that.child.afterViewRender === 'function') {
+            that.child.afterViewRender(that.router.dispatch, that.router, model);
+        }
+        if (typeof mcom.afterChildRender === 'function') {
+            mcom.afterChildRender(rootDispatch, that.router, model);
+        }
+        if (that.devTool) {
+            that.devTool.reset();
+        }
+        Array.isArray(route.effects) && route.effects.forEach(function (service) { return that.router.addEffectService(service); });
+        Array.isArray(route.loadEffects) && route.loadEffects.forEach(loadEffectService);
+    }
+    function loadEffectService(service) {
+        service().then(function (ef) {
+            that.router.addEffectService(ef.default);
+        });
+    }
+    this.runChild = function (route) {
+        if (typeof route.loadComponent === 'function') {
+            that.child = getEmptyCom();
+            updateUI();
+            loadCom(route);
+        }
+        else {
+            runChildHelper(route.component, route);
+        }
+    };
+    this.run = function (component) {
+        initMainComponent(component, that.router);
+        model = getModel(mcom, rootDispatch, root_com_cache_id, null);
+        updateUI();
+        if (typeof mcom.afterViewRender === 'function') {
+            mcom.afterViewRender(rootDispatch, that.router, model);
+        }
+    };
+    this.canActivate = function (route, callback) {
+        try {
+            if (typeof route.canActivate === 'function') {
+                var ref = injectable_1.Injector.has(route.canActivate) ? injectable_1.Injector.get(route.canActivate) : new route.canActivate();
+                if (typeof ref.canActivate === 'function') {
+                    var res = ref.canActivate(that.router);
+                    if (typeof res === 'object' && res.then) {
+                        res.then(function (val) {
+                            callback(val);
+                        });
+                    }
+                    else {
+                        callback(res);
+                    }
+                }
+                else {
+                    callback(true);
+                }
+            }
+            else {
+                callback(true);
+            }
+        }
+        catch (e) {
+            callback(false);
+        }
+    };
+    this.destroy = function (location, callback) {
+        try {
+            if (that.child && typeof active_route.canDeactivate === 'function') {
+                var ref = injectable_1.Injector.has(active_route.canDeactivate) ? injectable_1.Injector.get(active_route.canDeactivate) : new active_route.canDeactivate();
+                if (typeof ref.canDeactivate === 'function') {
+                    var res = ref.canDeactivate(that.child, that.router);
+                    if (typeof res === 'object' && res.then) {
+                        res.then(function (val) {
+                            if (val) {
+                                fireDestroyEvent(location, callback);
+                            }
+                        });
+                    }
+                    else if (res) {
+                        fireDestroyEvent(location, callback);
+                    }
+                }
+                else {
+                    fireDestroyEvent(location, callback);
+                }
+            }
+            else {
+                fireDestroyEvent(location, callback);
+            }
+        }
+        catch (ex) {
+            console.log(ex);
+        }
+    };
+}
+exports.ComponentManager = ComponentManager;
+exports.default = ComponentManager;
+
+},{"./di/injectable":5,"snabbdom":26,"zaitun-dom":32}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Type = Function;
+var Injectable_map = new Map();
+/**
+ * Creates an injector for a given class.
+ *
+ * @param scope default scope is application.
+ * @param deps you may provide external @Injectable dependency
+ * @param factory you may provide custom factory to create instance.
+ *
+ */
+exports.Injectable = function (scope, deps, factory) {
+    scope = scope || 'application';
+    return function (target, propertyKey, descriptor) {
+        if (!Injectable_map.has(target)) {
+            Injectable_map.set(target, {
+                scope: scope,
+                factory: function () {
+                    var args = resolveDeps(deps || []);
+                    return typeof factory === 'function' ? factory.apply(void 0, args) : new (target.bind.apply(target, [void 0].concat(args)))();
+                },
+                value: null
+            });
+        }
+    };
+};
+function resolveDeps(deps) {
+    return deps.map(function (token) { return resolveToken(token); });
+}
+function resolveToken(token) {
+    var injector_data = Injectable_map.get(token);
+    if (!injector_data) {
+        throw new Error(token + " is not declared as @Injectable");
+    }
+    if (injector_data.value === null) {
+        injector_data.value = injector_data.factory();
+    }
+    return injector_data.value;
+}
+var Injector = /** @class */ (function () {
+    function Injector() {
+    }
+    Injector.get = function (token, notFoundValue) {
+        return resolveToken(token);
+    };
+    Injector.has = function (token) {
+        return Injectable_map.has(token);
+    };
+    return Injector;
+}());
+exports.Injector = Injector;
+function disposePageScopeInstance() {
+    Injectable_map.forEach(function (value, key) {
+        if (value.scope === 'page') {
+            value.value = null;
+        }
+    });
+}
+exports.disposePageScopeInstance = disposePageScopeInstance;
+
+},{}],6:[function(require,module,exports){
+"use strict";
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("./bootstrap"));
+__export(require("./componentManager"));
+__export(require("./router"));
+var zaitun_dom_1 = require("zaitun-dom");
+exports.h = zaitun_dom_1.h;
+var injectable_1 = require("./di/injectable");
+exports.Injectable = injectable_1.Injectable;
+exports.Injector = injectable_1.Injector;
+
+},{"./bootstrap":2,"./componentManager":4,"./di/injectable":5,"./router":34,"zaitun-dom":32}],7:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -54,7 +676,7 @@ var supportsGoWithoutReloadUsingHash = exports.supportsGoWithoutReloadUsingHash 
 var isExtraneousPopstateEvent = exports.isExtraneousPopstateEvent = function isExtraneousPopstateEvent(event) {
   return event.state === undefined && navigator.userAgent.indexOf('CriOS') === -1;
 };
-},{}],2:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -133,7 +755,7 @@ var createLocation = exports.createLocation = function createLocation(path, stat
 var locationsAreEqual = exports.locationsAreEqual = function locationsAreEqual(a, b) {
   return a.pathname === b.pathname && a.search === b.search && a.hash === b.hash && a.key === b.key && (0, _valueEqual2.default)(a.state, b.state);
 };
-},{"./PathUtils":3,"resolve-pathname":11,"value-equal":24}],3:[function(require,module,exports){
+},{"./PathUtils":9,"resolve-pathname":16,"value-equal":29}],9:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -195,7 +817,7 @@ var createPath = exports.createPath = function createPath(location) {
 
   return path;
 };
-},{}],4:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -503,7 +1125,7 @@ var createBrowserHistory = function createBrowserHistory() {
 };
 
 exports.default = createBrowserHistory;
-},{"./DOMUtils":1,"./LocationUtils":2,"./PathUtils":3,"./createTransitionManager":7,"invariant":9,"warning":25}],5:[function(require,module,exports){
+},{"./DOMUtils":7,"./LocationUtils":8,"./PathUtils":9,"./createTransitionManager":13,"invariant":15,"warning":30}],11:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -828,7 +1450,7 @@ var createHashHistory = function createHashHistory() {
 };
 
 exports.default = createHashHistory;
-},{"./DOMUtils":1,"./LocationUtils":2,"./PathUtils":3,"./createTransitionManager":7,"invariant":9,"warning":25}],6:[function(require,module,exports){
+},{"./DOMUtils":7,"./LocationUtils":8,"./PathUtils":9,"./createTransitionManager":13,"invariant":15,"warning":30}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -999,7 +1621,7 @@ var createMemoryHistory = function createMemoryHistory() {
 };
 
 exports.default = createMemoryHistory;
-},{"./LocationUtils":2,"./PathUtils":3,"./createTransitionManager":7,"warning":25}],7:[function(require,module,exports){
+},{"./LocationUtils":8,"./PathUtils":9,"./createTransitionManager":13,"warning":30}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1085,7 +1707,7 @@ var createTransitionManager = function createTransitionManager() {
 };
 
 exports.default = createTransitionManager;
-},{"warning":25}],8:[function(require,module,exports){
+},{"warning":30}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1138,7 +1760,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.createBrowserHistory = _createBrowserHistory3.default;
 exports.createHashHistory = _createHashHistory3.default;
 exports.createMemoryHistory = _createMemoryHistory3.default;
-},{"./LocationUtils":2,"./PathUtils":3,"./createBrowserHistory":4,"./createHashHistory":5,"./createMemoryHistory":6}],9:[function(require,module,exports){
+},{"./LocationUtils":8,"./PathUtils":9,"./createBrowserHistory":10,"./createHashHistory":11,"./createMemoryHistory":12}],15:[function(require,module,exports){
 (function (process){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -1191,193 +1813,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require('_process'))
-},{"_process":10}],10:[function(require,module,exports){
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],11:[function(require,module,exports){
+},{"_process":1}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1452,7 +1888,7 @@ function resolvePathname(to) {
 
 exports.default = resolvePathname;
 module.exports = exports['default'];
-},{}],12:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var vnode_1 = require("./vnode");
@@ -1496,7 +1932,7 @@ function h(sel, b, c) {
             data = b;
         }
     }
-    if (is.array(children)) {
+    if (children !== undefined) {
         for (i = 0; i < children.length; ++i) {
             if (is.primitive(children[i]))
                 children[i] = vnode_1.vnode(undefined, undefined, undefined, children[i], undefined);
@@ -1512,7 +1948,7 @@ exports.h = h;
 ;
 exports.default = h;
 
-},{"./is":14,"./vnode":23}],13:[function(require,module,exports){
+},{"./is":19,"./vnode":28}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function createElement(tagName) {
@@ -1579,7 +2015,7 @@ exports.htmlDomApi = {
 };
 exports.default = exports.htmlDomApi;
 
-},{}],14:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.array = Array.isArray;
@@ -1588,7 +2024,7 @@ function primitive(s) {
 }
 exports.primitive = primitive;
 
-},{}],15:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var xlinkNS = 'http://www.w3.org/1999/xlink';
@@ -1644,7 +2080,7 @@ function updateAttrs(oldVnode, vnode) {
 exports.attributesModule = { create: updateAttrs, update: updateAttrs };
 exports.default = exports.attributesModule;
 
-},{}],16:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function updateClass(oldVnode, vnode) {
@@ -1670,7 +2106,7 @@ function updateClass(oldVnode, vnode) {
 exports.classModule = { create: updateClass, update: updateClass };
 exports.default = exports.classModule;
 
-},{}],17:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var CAPS_REGEX = /[A-Z]/g;
@@ -1709,7 +2145,7 @@ function updateDataset(oldVnode, vnode) {
 exports.datasetModule = { create: updateDataset, update: updateDataset };
 exports.default = exports.datasetModule;
 
-},{}],18:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function invokeHandler(handler, vnode, event) {
@@ -1805,7 +2241,7 @@ exports.eventListenersModule = {
 };
 exports.default = exports.eventListenersModule;
 
-},{}],19:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function updateProps(oldVnode, vnode) {
@@ -1832,11 +2268,12 @@ function updateProps(oldVnode, vnode) {
 exports.propsModule = { create: updateProps, update: updateProps };
 exports.default = exports.propsModule;
 
-},{}],20:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var raf = (typeof window !== 'undefined' && window.requestAnimationFrame) || setTimeout;
 var nextFrame = function (fn) { raf(function () { raf(fn); }); };
+var reflowForced = false;
 function setNextFrame(obj, prop, val) {
     nextFrame(function () { obj[prop] = val; });
 }
@@ -1893,6 +2330,10 @@ function applyRemoveStyle(vnode, rm) {
         rm();
         return;
     }
+    if (!reflowForced) {
+        getComputedStyle(document.body).transform;
+        reflowForced = true;
+    }
     var name, elm = vnode.elm, i = 0, compStyle, style = s.remove, amount = 0, applied = [];
     for (name in style) {
         applied.push(name);
@@ -1911,7 +2352,11 @@ function applyRemoveStyle(vnode, rm) {
             rm();
     });
 }
+function forceReflow() {
+    reflowForced = false;
+}
 exports.styleModule = {
+    pre: forceReflow,
     create: updateStyle,
     update: updateStyle,
     destroy: applyDestroyStyle,
@@ -1919,7 +2364,7 @@ exports.styleModule = {
 };
 exports.default = exports.styleModule;
 
-},{}],21:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var vnode_1 = require("./vnode");
@@ -2229,7 +2674,7 @@ function init(modules, domApi) {
 }
 exports.init = init;
 
-},{"./h":12,"./htmldomapi":13,"./is":14,"./thunk":22,"./vnode":23}],22:[function(require,module,exports){
+},{"./h":17,"./htmldomapi":18,"./is":19,"./thunk":27,"./vnode":28}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var h_1 = require("./h");
@@ -2277,7 +2722,7 @@ exports.thunk = function thunk(sel, key, fn, args) {
 };
 exports.default = exports.thunk;
 
-},{"./h":12}],23:[function(require,module,exports){
+},{"./h":17}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function vnode(sel, data, children, text, elm) {
@@ -2288,7 +2733,7 @@ function vnode(sel, data, children, text, elm) {
 exports.vnode = vnode;
 exports.default = vnode;
 
-},{}],24:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2332,7 +2777,7 @@ function valueEqual(a, b) {
 
 exports.default = valueEqual;
 module.exports = exports['default'];
-},{}],25:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -2396,366 +2841,7 @@ if (process.env.NODE_ENV !== 'production') {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"_process":10}],26:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var router_1 = require("./router");
-var componentManager_1 = require("./componentManager");
-function bootstrap(options) {
-    if (!options.containerDom) {
-        throw new Error('mountNode must be a css selector or a dom object');
-    }
-    if (typeof options.containerDom === 'string') {
-        options.containerDom = document.querySelector(options.containerDom);
-    }
-    if (!(typeof options.mainComponent === 'object' || typeof options.mainComponent === 'function')) {
-        throw new Error('bootstrap options: mainComponent missing.');
-    }
-    return new router_1.Router(options, new componentManager_1.ComponentManager(options));
-}
-exports.bootstrap = bootstrap;
-exports.default = bootstrap;
-
-},{"./componentManager":28,"./router":33}],27:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var CLICK_EVENT = typeof document !== 'undefined' && document.ontouchstart
-    ? 'touchstart'
-    : 'click';
-function which(ev) {
-    if (typeof window === 'undefined') {
-        return false;
-    }
-    var e = ev || window.event;
-    return e.which === null ? e.button : e.which;
-}
-function sameOrigin(href) {
-    if (typeof window === 'undefined') {
-        return false;
-    }
-    return href && href.indexOf(window.location.origin) === 0;
-}
-function makeClickListener(push) {
-    return function clickListener(event) {
-        if (which(event) !== 1) {
-            return;
-        }
-        if (event.metaKey || event.ctrlKey || event.shiftKey) {
-            return;
-        }
-        if (event.defaultPrevented) {
-            return;
-        }
-        var element = event.target;
-        while (element && element.nodeName !== 'A') {
-            element = element.parentNode;
-        }
-        if (!element || element.nodeName !== 'A') {
-            return;
-        }
-        if (element.hasAttribute('download') ||
-            element.getAttribute('rel') === 'external') {
-            return;
-        }
-        if (element.target) {
-            return;
-        }
-        var link = element.getAttribute('href');
-        if ((link && link.indexOf('mailto:') > -1) || link.charAt(0) === '#') {
-            return;
-        }
-        if (!sameOrigin(element.href)) {
-            return;
-        }
-        event.preventDefault();
-        push({ pathname: decodeURI(element.pathname), search: decodeURI(element.search), hash: '' });
-    };
-}
-function captureClicks(push) {
-    var listener = makeClickListener(push);
-    if (typeof window !== 'undefined') {
-        document.addEventListener(CLICK_EVENT, listener, false);
-    }
-    return function () { return document.removeEventListener(CLICK_EVENT, listener); };
-}
-exports.captureClicks = captureClicks;
-
-},{}],28:[function(require,module,exports){
-"use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var router_1 = require("./router");
-var modules_1 = require("./dom/modules");
-var dom_1 = require("./dom");
-var snabbdom = require('snabbdom');
-var patch = snabbdom.init(modules_1.default);
-function ComponentManager(boptions) {
-    var mcom = {}, model = {}, params = null, key = '', cacheObj = {}, active_route = {}, vnode = boptions.containerDom, options = boptions, rootDispatch, root_com_cache_id = 'rootid', that = this;
-    this.router = null;
-    this.devTool = null;
-    this._isTestEnable = false;
-    this._testCallback;
-    this.getAppState = function () { return model; };
-    function getEmptyCom() {
-        return {
-            init: function () {
-                return {};
-            },
-            view: function (obj) {
-                return dom_1.div('.com-loading', 'loading...');
-            },
-            update: function () {
-                return {};
-            }
-        };
-    }
-    that.child = getEmptyCom();
-    function initMainComponent(component, router) {
-        if (typeof component === 'object') {
-            mcom = component;
-        }
-        else if (typeof component === 'function') {
-            mcom = new component();
-            mcom.router = router;
-        }
-        validateCom(mcom);
-        rootDispatch = router.bindEffect(dispatch);
-        that.router.dispatch = rootDispatch;
-        router.rootDispatch = rootDispatch;
-    }
-    function validateCom(com) {
-        if (typeof com.init !== 'function') {
-            com.init = function () {
-                return {};
-            };
-        }
-        if (typeof com.view !== 'function') {
-            throw new Error('Component must have a view function.');
-        }
-    }
-    function initChildComponent(component, router) {
-        if (typeof component === 'object') {
-            that.child = component;
-        }
-        else if (typeof component === 'function') {
-            that.child = new component();
-            that.child.router = router;
-        }
-        validateCom(that.child);
-    }
-    function updateUI() {
-        var newVnode = mcom.view({
-            model: model,
-            dispatch: rootDispatch,
-            router: that.router
-        });
-        vnode = patch(vnode, newVnode);
-    }
-    function dispatch(action) {
-        model = mcom.update(model, action, that.router);
-        updateUI();
-        if (that._isTestEnable) {
-            that._testCallback({ model: model, action: action });
-        }
-        if (that.devTool) {
-            that.devTool.setAction(action, model);
-        }
-        if (active_route.cache || (options.cacheStrategy === 'local' || options.cacheStrategy === 'session')) {
-            setComponentToCache(key, model);
-        }
-    }
-    function fireDestroyEvent(path, callback) {
-        var tid = setTimeout(function () {
-            callback(path);
-            clearTimeout(tid);
-        }, 0);
-        if (key) {
-            setComponentToCache(key, model);
-        }
-        if (typeof that.child.onDestroy === 'function') {
-            that.child.onDestroy();
-        }
-    }
-    function setComponentToCache(key, state) {
-        if (active_route.cache) {
-            if (getCacheStrategy() === 'session') {
-                sessionStorage.setItem(key, that.json_stringify(state.child));
-            }
-            else if (getCacheStrategy() === 'local') {
-                localStorage.setItem(key, that.json_stringify(state.child));
-            }
-            else {
-                cacheObj[key] = state.child;
-            }
-        }
-        var obj = __assign({}, state);
-        obj.child = null;
-        if (options.cacheStrategy === 'session') {
-            sessionStorage.setItem(root_com_cache_id, that.json_stringify(obj));
-        }
-        else if (options.cacheStrategy === 'local') {
-            localStorage.setItem(root_com_cache_id, that.json_stringify(obj));
-        }
-        else {
-            cacheObj[root_com_cache_id] = obj;
-        }
-    }
-    function getCacheData(key) {
-        if (getCacheStrategy() === 'session') {
-            return that.json_parse(sessionStorage.getItem(key));
-        }
-        else if (getCacheStrategy() === 'local') {
-            return that.json_parse(localStorage.getItem(key));
-        }
-        return cacheObj[key];
-    }
-    function getCacheStrategy() {
-        return active_route.cacheStrategy ? active_route.cacheStrategy : options.cacheStrategy;
-    }
-    this.json_parse = function (data) {
-        return JSON.parse(data);
-    };
-    this.json_stringify = function (data) {
-        return JSON.stringify(data);
-    };
-    this.reset = function () {
-        model = mcom.init(rootDispatch, params, this.router);
-        if (typeof that.child.init === 'function') {
-            model.child = that.child.init(that.router.dispatch, params, that.router);
-        }
-        updateUI();
-    };
-    this.updateByModel = function (_model) {
-        model = _model;
-        updateUI();
-    };
-    function loadCom(route) {
-        route.loadComponent().then(function (com) {
-            runChildHelper(com.default, route);
-        });
-    }
-    function getModel(component, dispatch, key, params) {
-        if (!key)
-            return component.init(dispatch, params, that.router);
-        var data = getCacheData(key);
-        if (data) {
-            if (typeof component.onCache === 'function')
-                data = component.onCache(data);
-        }
-        else
-            data = component.init(dispatch, params, that.router);
-        return data;
-    }
-    function runChildHelper(component, route) {
-        active_route = route;
-        params = route.routeParams;
-        key = route.cache ? route.navPath : '';
-        initChildComponent(component, that.router);
-        model.child = getModel(that.child, that.router.dispatch, key, route.routeParams);
-        updateUI();
-        if (typeof that.child.afterViewRender === 'function') {
-            that.child.afterViewRender(that.router.dispatch, that.router, model);
-        }
-        if (typeof mcom.afterChildRender === 'function') {
-            mcom.afterChildRender(rootDispatch, that.router, model);
-        }
-        if (that.devTool) {
-            that.devTool.reset();
-        }
-        Array.isArray(route.effects) && route.effects.forEach(function (service) { return that.router.addEffectService(service); });
-        Array.isArray(route.loadEffects) && route.loadEffects.forEach(loadEffectService);
-    }
-    function loadEffectService(service) {
-        service().then(function (ef) {
-            that.router.addEffectService(ef.default);
-        });
-    }
-    this.runChild = function (route) {
-        if (typeof route.loadComponent === 'function') {
-            that.child = getEmptyCom();
-            updateUI();
-            loadCom(route);
-        }
-        else {
-            runChildHelper(route.component, route);
-        }
-    };
-    this.run = function (component) {
-        initMainComponent(component, that.router);
-        model = getModel(mcom, rootDispatch, root_com_cache_id, null);
-        updateUI();
-        if (typeof mcom.afterViewRender === 'function') {
-            mcom.afterViewRender(rootDispatch, that.router, model);
-        }
-    };
-    this.canActivate = function (route, callback) {
-        try {
-            if (typeof route.canActivate === 'function') {
-                var ref = new route.canActivate();
-                if (typeof ref.canActivate === 'function') {
-                    var res = ref.canActivate(router_1.Router);
-                    if (typeof res === 'object' && res.then) {
-                        res.then(function (val) {
-                            callback(val);
-                        });
-                    }
-                    else {
-                        callback(res);
-                    }
-                }
-                else {
-                    callback(true);
-                }
-            }
-            else {
-                callback(true);
-            }
-        }
-        catch (e) {
-            callback(false);
-        }
-    };
-    this.destroy = function (location, callback) {
-        try {
-            if (that.child && typeof active_route.canDeactivate === 'function') {
-                var ref = new active_route.canDeactivate();
-                if (typeof ref.canDeactivate === 'function') {
-                    var res = ref.canDeactivate(that.child, router_1.Router);
-                    if (typeof res === 'object' && res.then) {
-                        res.then(function (val) {
-                            if (val) {
-                                fireDestroyEvent(location, callback);
-                            }
-                        });
-                    }
-                    else if (res) {
-                        fireDestroyEvent(location, callback);
-                    }
-                }
-                else {
-                    fireDestroyEvent(location, callback);
-                }
-            }
-            else {
-                fireDestroyEvent(location, callback);
-            }
-        }
-        catch (ex) {
-            console.log(ex);
-        }
-    };
-}
-exports.ComponentManager = ComponentManager;
-exports.default = ComponentManager;
-
-},{"./dom":30,"./dom/modules":31,"./router":33,"snabbdom":21}],29:[function(require,module,exports){
+},{"_process":1}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:max-file-line-count
@@ -2996,9 +3082,15 @@ TAG_NAMES.forEach(function (n) {
 });
 exports.default = exported;
 
-},{"snabbdom/h":12}],30:[function(require,module,exports){
+},{"snabbdom/h":17}],32:[function(require,module,exports){
 "use strict";
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
+var h_1 = require("snabbdom/h");
+exports.h = h_1.h;
+__export(require("./modules"));
 var hyperscript_helpers_1 = require("./hyperscript-helpers");
 exports.svg = hyperscript_helpers_1.default.svg;
 exports.a = hyperscript_helpers_1.default.a;
@@ -3102,7 +3194,7 @@ exports.u = hyperscript_helpers_1.default.u;
 exports.ul = hyperscript_helpers_1.default.ul;
 exports.video = hyperscript_helpers_1.default.video;
 
-},{"./hyperscript-helpers":29}],31:[function(require,module,exports){
+},{"./hyperscript-helpers":31,"./modules":33,"snabbdom/h":17}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var class_1 = require("snabbdom/modules/class");
@@ -3117,7 +3209,7 @@ var dataset_1 = require("snabbdom/modules/dataset");
 exports.DatasetModule = dataset_1.default;
 var eventlisteners_1 = require("snabbdom/modules/eventlisteners");
 exports.Eventlisteners = eventlisteners_1.default;
-var modules = [
+exports.Modules = [
     style_1.default,
     class_1.default,
     props_1.default,
@@ -3125,26 +3217,13 @@ var modules = [
     dataset_1.default,
     eventlisteners_1.default
 ];
-exports.default = modules;
 
-},{"snabbdom/modules/attributes":15,"snabbdom/modules/class":16,"snabbdom/modules/dataset":17,"snabbdom/modules/eventlisteners":18,"snabbdom/modules/props":19,"snabbdom/modules/style":20}],32:[function(require,module,exports){
-"use strict";
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./bootstrap"));
-__export(require("./componentManager"));
-__export(require("./router"));
-var h_1 = require("snabbdom/h");
-exports.h = h_1.h;
-
-},{"./bootstrap":26,"./componentManager":28,"./router":33,"snabbdom/h":12}],33:[function(require,module,exports){
+},{"snabbdom/modules/attributes":20,"snabbdom/modules/class":21,"snabbdom/modules/dataset":22,"snabbdom/modules/eventlisteners":23,"snabbdom/modules/props":24,"snabbdom/modules/style":25}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var history_1 = require("history");
 var captureClicks_1 = require("./captureClicks");
-var h_1 = require("snabbdom/h");
+var zaitun_dom_1 = require("zaitun-dom");
 var Router = /** @class */ (function () {
     function Router(options, CM) {
         this.options = options;
@@ -3276,7 +3355,7 @@ var Router = /** @class */ (function () {
             path: location.pathname + location.search,
             component: {
                 view: function () {
-                    return h_1.h('div.com-not-found', { style: { backgroundColor: 'gray', color: 'white', padding: '4px' } }, 'Component not found at ' + location.pathname + location.search);
+                    return zaitun_dom_1.h('div.com-not-found', { style: { backgroundColor: 'gray', color: 'white', padding: '4px' } }, 'Component not found at ' + location.pathname + location.search);
                 }
             }
         };
@@ -3356,5 +3435,5 @@ var Router = /** @class */ (function () {
 exports.Router = Router;
 exports.default = Router;
 
-},{"./captureClicks":27,"history":8,"snabbdom/h":12}]},{},[32])(32)
+},{"./captureClicks":3,"history":14,"zaitun-dom":32}]},{},[6])(6)
 });

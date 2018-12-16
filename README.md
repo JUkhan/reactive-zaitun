@@ -5,6 +5,8 @@ Inspired by [Elm Architecture](https://guide.elm-lang.org/architecture/)
 
 ## v1.7.0 added Dependency Injection(DI) [Live Example](https://stackblitz.com/edit/zaitun-di?file=appService.ts)
 
+## v1.7.1 for [canActivate, canDeactivate] we may pass an Injectable service or normal class. Please look at the `services/PagePermissionService.ts` of this [Live Example](https://stackblitz.com/edit/zaitun-ui)
+
 ## Quick start or ([Live App](https://stackblitz.com/edit/zaitunapp-4akuet?embed=1&file=counter.ts))
 ```sh
 git clone https://github.com/JUkhan/zaitun-starter-kit-typescript.git quickstart
@@ -12,7 +14,7 @@ cd quickstart
 npm install
 npm start
 npm run build:prod
-Browse http://localhost:8080
+Browse http://localhost:8484
 
 npm run test
 ```

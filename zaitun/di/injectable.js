@@ -44,6 +44,9 @@ var Injector = /** @class */ (function () {
     Injector.get = function (token, notFoundValue) {
         return resolveToken(token);
     };
+    Injector.has = function (token) {
+        return Injectable_map.has(token);
+    };
     return Injector;
 }());
 exports.Injector = Injector;

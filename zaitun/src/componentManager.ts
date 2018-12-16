@@ -3,7 +3,7 @@ import { RouteOptions } from './models';
 import { Component, Action, BootstrapOptions } from './models';
 
 import {div, Modules} from 'zaitun-dom';
-import {disposePageScopeInstance} from './di/injectable';
+import {disposePageScopeInstance,Injector} from './di/injectable';
 
 declare const require: any;
 const snabbdom = require('snabbdom');
@@ -225,10 +225,10 @@ export function ComponentManager(boptions: BootstrapOptions) {
     }
     this.canActivate = function (route: RouteOptions, callback: Function) {
         try {
-            if (typeof route.canActivate === 'function') {
-                var ref = new route.canActivate();
+            if (typeof route.canActivate === 'function') {                
+                var ref =Injector.has(route.canActivate)? Injector.get(route.canActivate):new route.canActivate();
                 if (typeof ref.canActivate === 'function') {
-                    var res = ref.canActivate(Router);
+                    var res = ref.canActivate(that.router);
                     if (typeof res === 'object' && res.then) {
                         res.then(function (val: any) {
                             callback(val);
@@ -248,10 +248,10 @@ export function ComponentManager(boptions: BootstrapOptions) {
     }
     this.destroy = function (location: any, callback: Function) {
         try {
-            if (that.child && typeof active_route.canDeactivate === 'function') {
-                let ref = new active_route.canDeactivate();
+            if (that.child && typeof active_route.canDeactivate === 'function') {                
+                var ref =Injector.has(active_route.canDeactivate)?Injector.get(active_route.canDeactivate):new active_route.canDeactivate();
                 if (typeof ref.canDeactivate === 'function') {
-                    let res = ref.canDeactivate(that.child, Router);
+                    let res = ref.canDeactivate(that.child, that.router);
                     if (typeof res === 'object' && res.then) {
                         res.then(function (val: any) {
                             if (val) {

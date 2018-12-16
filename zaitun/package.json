@@ -1,6 +1,6 @@
 {
   "name": "zaitun",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "a functional and reactive framework for front-end application development either in JavaScript or a language like TypeScript that compiles to JavaScript.",
   "main": "index.js",
   "module": "es/index.js",
@@ -12,7 +12,7 @@
   "dependencies": {
     "history": "^4.7.2",
     "zaitun-dom": "^1.0.3"
-  },  
+  },
   "scripts": {
     "pretest": "npm run compile",
     "test": "testem",
@@ -20,7 +20,7 @@
     "compile-es": "../node_modules/.bin/tsc --outDir es --module es6 --moduleResolution node",
     "compile-umd": "../node_modules/.bin/tsc --outDir umd --module umd --moduleResolution node",
     "compile-commonjs": "../node_modules/.bin/tsc --outDir ./",
-    "prepublish": "npm run compile",    
+    "prepublish": "npm run compile",
     "compile-example": "browserify -d example/main.js -o example/browserified.js",
     "release-major": "xyz --repo git@github.com/JUkhan/zaitun.git --increment major",
     "release-minor": "xyz --repo git@github.com/JUkhan/zaitun.git --increment minor",

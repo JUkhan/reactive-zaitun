@@ -60,6 +60,9 @@ export abstract class Injector {
     static get<T>(token: Type<T>, notFoundValue?: T): T {
         return resolveToken(token);
     }
+    static has(token: any){
+        return Injectable_map.has(token);
+    }
 }
 export function disposePageScopeInstance() {
     Injectable_map.forEach((value, key) => {
