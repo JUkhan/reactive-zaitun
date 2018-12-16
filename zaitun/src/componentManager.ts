@@ -46,7 +46,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
         if (typeof component === 'object') {
             mcom = component;
         } else if (typeof component === 'function') {
-            mcom = new component();
+            mcom = new component(...Injector.getParams(component));
             mcom.router = router;
         }
         validateCom(mcom);
@@ -71,7 +71,7 @@ export function ComponentManager(boptions: BootstrapOptions) {
             that.child = component;
         }
         else if (typeof component === 'function') {
-            that.child = new component();
+            that.child = new component(...Injector.getParams(component));
             that.child.router = router;
         }
         validateCom(that.child);

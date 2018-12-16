@@ -1,6 +1,6 @@
 {
   "name": "zaitun",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "a functional and reactive framework for front-end application development either in JavaScript or a language like TypeScript that compiles to JavaScript.",
   "main": "index.js",
   "module": "es/index.js",

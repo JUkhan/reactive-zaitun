@@ -309,7 +309,7 @@ function ComponentManager(boptions) {
             mcom = component;
         }
         else if (typeof component === 'function') {
-            mcom = new component();
+            mcom = new (component.bind.apply(component, [void 0].concat(injectable_1.Injector.getParams(component))))();
             mcom.router = router;
         }
         validateCom(mcom);
@@ -332,7 +332,7 @@ function ComponentManager(boptions) {
             that.child = component;
         }
         else if (typeof component === 'function') {
-            that.child = new component();
+            that.child = new (component.bind.apply(component, [void 0].concat(injectable_1.Injector.getParams(component))))();
             that.child.router = router;
         }
         validateCom(that.child);
@@ -548,6 +548,7 @@ exports.default = ComponentManager;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Type = Function;
 var Injectable_map = new Map();
+var Page_map = new Map();
 /**
  * Creates an injector for a given class.
  *
@@ -593,6 +594,14 @@ var Injector = /** @class */ (function () {
     Injector.has = function (token) {
         return Injectable_map.has(token);
     };
+    Injector.getParams = function (token) {
+        var injector_data = Page_map.get(token);
+        if (injector_data) {
+            return injector_data.factory();
+        }
+        return [];
+    };
+    ;
     return Injector;
 }());
 exports.Injector = Injector;
@@ -604,6 +613,24 @@ function disposePageScopeInstance() {
     });
 }
 exports.disposePageScopeInstance = disposePageScopeInstance;
+/**
+ * This decorator only use for dependency injection and only for page component
+ *
+ * @param deps you must provide external @Injectable dependency
+ *
+ */
+exports.Page = function (deps) {
+    return function (target, propertyKey, descriptor) {
+        if (!Page_map.has(target)) {
+            Page_map.set(target, {
+                factory: function () {
+                    var args = resolveDeps(deps || []);
+                    return args;
+                }
+            });
+        }
+    };
+};
 
 },{}],6:[function(require,module,exports){
 "use strict";
@@ -619,6 +646,7 @@ exports.h = zaitun_dom_1.h;
 var injectable_1 = require("./di/injectable");
 exports.Injectable = injectable_1.Injectable;
 exports.Injector = injectable_1.Injector;
+exports.Page = injectable_1.Page;
 
 },{"./bootstrap":2,"./componentManager":4,"./di/injectable":5,"./router":34,"zaitun-dom":32}],7:[function(require,module,exports){
 'use strict';

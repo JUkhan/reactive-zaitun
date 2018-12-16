@@ -20,5 +20,16 @@ export declare const Injectable: InjectableDecorator;
 export declare abstract class Injector {
     static get<T>(token: Type<T>, notFoundValue?: T): T;
     static has(token: any): boolean;
+    static getParams(token: any): any;
 }
 export declare function disposePageScopeInstance(): void;
+export interface PageDecorator {
+    (deps: Type<any>[]): any;
+}
+/**
+ * This decorator only use for dependency injection and only for page component
+ *
+ * @param deps you must provide external @Injectable dependency
+ *
+ */
+export declare const Page: PageDecorator;

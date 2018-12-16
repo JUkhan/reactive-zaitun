@@ -17,7 +17,11 @@ interface InjectorDef {
     value: any;
 
 }
+interface PageResolveDef {    
+    factory: (...any) => any;
+}
 const Injectable_map = new Map<Type<any>, InjectorDef>();
+const Page_map= new Map<Type<any>, PageResolveDef>();
 /**
  * Creates an injector for a given class.
  *
@@ -63,6 +67,13 @@ export abstract class Injector {
     static has(token: any){
         return Injectable_map.has(token);
     }
+    static getParams(token:any) {
+        var injector_data = Page_map.get(token);
+        if(injector_data){            
+            return injector_data.factory();
+        }
+        return [];
+    };
 }
 export function disposePageScopeInstance() {
     Injectable_map.forEach((value, key) => {
@@ -70,4 +81,25 @@ export function disposePageScopeInstance() {
             value.value = null;
         }
     });
+}
+export interface PageDecorator{
+    (deps: Type<any>[]): any;
+}
+/**
+ * This decorator only use for dependency injection and only for page component
+ * 
+ * @param deps you must provide external @Injectable dependency 
+ *
+ */
+export const Page:PageDecorator=(deps)=>{
+    return function (target, propertyKey, descriptor) {
+        if(!Page_map.has(target)){
+            Page_map.set(target,{
+                factory:function(){
+                    var args = resolveDeps(deps || []);
+                    return args;
+                }
+            })
+        }
+    }
 }

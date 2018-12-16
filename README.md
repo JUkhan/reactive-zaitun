@@ -5,7 +5,13 @@ Inspired by [Elm Architecture](https://guide.elm-lang.org/architecture/)
 
 ## v1.7.0 added Dependency Injection(DI) [Live Example](https://stackblitz.com/edit/zaitun-di?file=appService.ts)
 
-## v1.7.1 for [canActivate, canDeactivate] we may pass an Injectable service or normal class. Please look at the `services/PagePermissionService.ts` of this [Live Example](https://stackblitz.com/edit/zaitun-ui)
+## v1.7.2 
+> For [canActivate, canDeactivate] we may pass an Injectable service or normal class. Please look at the `services/PagePermissionService.ts`.
+
+> @Page(deps:[]) This decorator only use for dependency injection and page component. 
+@param `deps` you must provide external @Injectable dependency 
+
+> Please have a look at this [Live Example](https://stackblitz.com/edit/zaitun-ui) for clarification
 
 ## Quick start or ([Live App](https://stackblitz.com/edit/zaitunapp-4akuet?embed=1&file=counter.ts))
 ```sh

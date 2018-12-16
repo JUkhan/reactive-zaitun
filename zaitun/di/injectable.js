@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Type = Function;
 var Injectable_map = new Map();
+var Page_map = new Map();
 /**
  * Creates an injector for a given class.
  *
@@ -47,6 +48,14 @@ var Injector = /** @class */ (function () {
     Injector.has = function (token) {
         return Injectable_map.has(token);
     };
+    Injector.getParams = function (token) {
+        var injector_data = Page_map.get(token);
+        if (injector_data) {
+            return injector_data.factory();
+        }
+        return [];
+    };
+    ;
     return Injector;
 }());
 exports.Injector = Injector;
@@ -58,4 +67,22 @@ function disposePageScopeInstance() {
     });
 }
 exports.disposePageScopeInstance = disposePageScopeInstance;
+/**
+ * This decorator only use for dependency injection and only for page component
+ *
+ * @param deps you must provide external @Injectable dependency
+ *
+ */
+exports.Page = function (deps) {
+    return function (target, propertyKey, descriptor) {
+        if (!Page_map.has(target)) {
+            Page_map.set(target, {
+                factory: function () {
+                    var args = resolveDeps(deps || []);
+                    return args;
+                }
+            });
+        }
+    };
+};
 //# sourceMappingURL=injectable.js.map
